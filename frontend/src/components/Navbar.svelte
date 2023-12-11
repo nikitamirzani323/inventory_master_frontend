@@ -56,9 +56,10 @@
                                 <a class="dropdown-item" use:link href="/companyadminrule" style="font-size: 13px;">COMPANY ADMINRULE</a>
                                 <a class="dropdown-item" use:link href="/listpoint" style="font-size: 13px;">LISTPOINT MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listbet" style="font-size: 13px;">LISTBET MANAGEMENT</a>
+                                <a class="dropdown-item" use:link href="/currency" style="font-size: 13px;">CURRENCY MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listuom" style="font-size: 13px;">UOM MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listbranch" style="font-size: 13px;">BRANCH MANAGEMENT</a>
-                                <a class="dropdown-item" use:link href="/currency" style="font-size: 13px;">CURRENCY MANAGEMENT</a>
+                                <a class="dropdown-item" use:link href="/listwarehouse" style="font-size: 13px;">WAREHOUSE MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/admin" style="font-size: 13px;">ADMIN MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/adminrule" style="font-size: 13px;">ADMIN RULE</a>
                             </li>

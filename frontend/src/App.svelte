@@ -10,6 +10,7 @@
 	import Currency from "./pages/currency/Currency.svelte";
 	import Uom from "./pages/uom/Uom.svelte";
 	import Branch from "./pages/branch/Branch.svelte";
+	import Warehouse from "./pages/warehouse/Warehouse.svelte";
 	import Company from "./pages/company/Company.svelte";
 	import Companyadmin from "./pages/companyadmin/Companyadmin.svelte";
 	import Companyadminrule from "./pages/companyadminrule/Companyadminrule.svelte";
@@ -49,6 +50,13 @@
 			}),
 			"/listbranch": wrap({
 				component: Branch,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
+			}),
+			"/listwarehouse": wrap({
+				component: Warehouse,
 				props: {
 					table_header_font: table_header_font,
 					table_body_font: table_body_font,
