@@ -14,13 +14,12 @@
 	export let listHome = []
 	export let totalrecord = 0
     let dispatch = createEventDispatcher();
-	let title_page = "CURRENCY"
+	let title_page = "BRANCH"
     let sData = "";
     let myModal_newentry = "";
     let flag_id_field = false;
     let flag_btnsave = true;
     let name_field = "";
-    let multiplier_field = 0;
     let create_field = "";
     let update_field = "";
     let idrecord = "";
@@ -42,15 +41,14 @@
         }
     }
     
-    const NewData = (e,id,nmcurr,multiplier,create,update) => {
+    const NewData = (e,id,nmbranch,create,update) => {
         sData = e
         if(sData == "New"){
             clearField()
         }else{
             flag_id_field = true;
             idrecord = id
-            name_field = nmcurr;
-            multiplier_field = multiplier;
+            name_field = nmbranch;
             create_field = create;
             update_field = update;
         }
@@ -71,17 +69,13 @@
                 flag = false
                 msg += "The ID is required\n"
             }
-            if(idrecord.length == 4){
+            if(idrecord.length == 5){
                 flag = false
-                msg += "The ID is maxlengt 4\n"
+                msg += "The ID is maxlength 5\n"
             }
             if(name_field == ""){
                 flag = false
                 msg += "The Name is required\n"
-            }
-            if(multiplier_field == ""){
-                flag = false
-                msg += "The Multiplier is required\n"
             }
         }else{
             if(idrecord == ""){
@@ -90,11 +84,7 @@
             }
             if(name_field == ""){
                 flag = false
-                msg += "The Domain is required\n"
-            }
-            if(multiplier_field == ""){
-                flag = false
-                msg += "The Multiplier is required\n"
+                msg += "The Name is required\n"
             }
         }
         
@@ -102,7 +92,7 @@
             flag_btnsave = false;
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
-            const res = await fetch("/api/currsave", {
+            const res = await fetch("/api/branchsave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -111,9 +101,8 @@
                 body: JSON.stringify({
                     sdata: sData,
                     page:"CURR-SAVE",
-                    curr_id: idrecord,
-                    curr_name: name_field,
-                    curr_multiplier: parseFloat(multiplier_field),
+                    branch_id: idrecord.toUpperCase(),
+                    branch_name: name_field,
                 }),
             });
             const json = await res.json();
@@ -142,7 +131,6 @@
     function clearField(){
         idrecord = "";
         name_field = "";
-        multiplier_field = 0;
         flag_id_field = false
         create_field = "";
         update_field = "";
@@ -171,13 +159,13 @@
     };
     function uperCase(element) {
         function onInput(event) {
-        element.value = element.value.toUpperCase();
+            element.value = element.value.toUpperCase();
         }
         element.addEventListener("input", onInput);
         return {
-        destroy() {
-            element.removeEventListener("input", onInput);
-        },
+            destroy() {
+                element.removeEventListener("input", onInput);
+            },
         };
     }
     const handleKeyboard_float = (e) => {
@@ -213,7 +201,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Currency"
+                            placeholder="Search Branch"
                             aria-label="Search"/>
                     </div>
                 </slot:template>
@@ -223,8 +211,8 @@
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CURRENCY</th>
-                                <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MULTIPLIER</th>
+                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CODE</th>
+                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">BRANCH</th>
                             </tr>
                         </thead>
                         {#if totalrecord > 0}
@@ -233,12 +221,12 @@
                                 <tr>
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i on:click={() => {
-                                                NewData("Edit",rec.home_id, rec.home_name, rec.home_multiplier,rec.home_create, rec.home_update);
+                                                NewData("Edit",rec.home_id, rec.home_name, rec.home_create, rec.home_update);
                                             }} class="bi bi-pencil"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_no}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
-                                    <td  style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.home_multiplier)}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -274,7 +262,7 @@
                 use:uperCase  
                 disabled
                 class="required form-control"
-                maxlength="4"
+                maxlength="5"
                 type="text"
                 placeholder="ID"/>
             {:else}
@@ -292,16 +280,6 @@
                 class="required"
                 type="text"
                 placeholder="Name"/>
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Multiplier</label>
-            <Input
-                on:keyup={handleKeyboard_float} 
-                bind:value={multiplier_field}
-                style="text-align: right;"
-                class="required"
-                type="text"
-                placeholder="Multiplier"/>
         </div>
         {#if sData != "New"}
         <div class="mb-3">
