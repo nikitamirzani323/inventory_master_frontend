@@ -8,6 +8,7 @@
 	import Adminrule from "./pages/adminrule/Adminrule.svelte";
 	import Pattern from "./pages/pattern/Pattern.svelte";
 	import Currency from "./pages/currency/Currency.svelte";
+	import Uom from "./pages/uom/Uom.svelte";
 	import Branch from "./pages/branch/Branch.svelte";
 	import Company from "./pages/company/Company.svelte";
 	import Companyadmin from "./pages/companyadmin/Companyadmin.svelte";
@@ -38,6 +39,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/listuom": wrap({
+				component: Uom,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/listbranch": wrap({
 				component: Branch,
