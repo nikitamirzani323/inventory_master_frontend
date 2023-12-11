@@ -130,7 +130,7 @@
             <Button
                 on:click={callFunction}
                 button_function="BACK"
-                button_title="Back"
+                button_title="<i class='bi bi-arrow-left-circle'></i>&nbsp;Back"
                 button_css="btn-primary"/>
         </div>
     </div>
@@ -147,7 +147,7 @@
                             }}
                             class="btn btn-warning btn-sm"
                             style="border-radius: 0px;">
-                            Save
+                            <i class='bi bi-save'></i>&nbsp;&nbsp;Save
                         </button>
                     </div>
                 </div>
@@ -178,7 +178,7 @@
                             }}
                             class="btn btn-warning btn-sm"
                             style="border-radius: 0px;">
-                            Save
+                            <i class='bi bi-save'></i>&nbsp;&nbsp;Save
                         </button>
                     </div>
                 </div>

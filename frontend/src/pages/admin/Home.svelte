@@ -170,12 +170,12 @@
             <Button
                 on:click={callFunction}
                 button_function="NEW"
-                button_title="New"
+                button_title="<i class='bi bi-plus-lg'></i>&nbsp;New"
                 button_css="btn-dark"/>
             <Button
                 on:click={callFunction}
                 button_function="REFRESH"
-                button_title="Refresh"
+                button_title="<i class='bi bi-arrow-clockwise'></i>&nbsp;Refresh"
                 button_css="btn-primary"/>
             <Panel
                 card_title="{title_page}"
@@ -190,7 +190,6 @@
                                     <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">USERNAME</th>
                                     <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAME</th>
                                     <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">RULE</th>
-                                    <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TIMEZONE</th>
                                     <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">JOIN DATE</th>
                                     <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">LAST LOGIN</th>
                                     <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">LAST IPADDRESS</th>
@@ -216,7 +215,6 @@
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.admin_username}</td>
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.admin_nama}</td>
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.admin_rule}</td>
-                                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.admin_timezone}</td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.admin_joindate}</td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.admin_lastlogin}</td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.admin_lastipaddres}</td>
@@ -312,7 +310,7 @@
         <Button
             on:click={callFunction}
             button_function="SAVE"
-            button_title="Save"
+            button_title="<i class='bi bi-save'></i>&nbsp;&nbsp;Save"
             button_css="btn-warning"/>
 	</slot:template>
 </Modal>

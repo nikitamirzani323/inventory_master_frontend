@@ -119,15 +119,13 @@
             <Button
                 on:click={callFunction}
                 button_function="NEW"
-                button_title="New"
-                button_css="btn-dark"
-            />
+                button_title="<i class='bi bi-plus-lg'></i>&nbsp;New"
+                button_css="btn-dark"/>
             <Button
                 on:click={callFunction}
                 button_function="REFRESH"
-                button_title="Refresh"
-                button_css="btn-primary"
-            />
+                button_title="<i class='bi bi-arrow-clockwise'></i>&nbsp;Refresh"
+                button_css="btn-primary"/>
             <Panel card_title={title_page} card_footer={totalrecord}>
                 <slot:template slot="card-body">
                     <table class="table table-striped ">
@@ -200,8 +198,7 @@
         <Button
             on:click={callFunction}
             button_function="SAVE"
-            button_title="Save"
-            button_css="btn-warning"
-        />
+            button_title="<i class='bi bi-save'></i>&nbsp;&nbsp;Save"
+            button_css="btn-warning"/>
     </slot:template>
 </Modal>
