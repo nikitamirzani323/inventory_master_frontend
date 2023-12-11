@@ -59,6 +59,8 @@
                             home_no: no,
                             home_id: record[i]["branch_id"],
                             home_name: record[i]["branch_name"],
+                            home_status: record[i]["branch_status"],
+                            home_status_css: record[i]["branch_status_css"],
                             home_create: record[i]["branch_create"],
                             home_update: record[i]["branch_update"],
                         },

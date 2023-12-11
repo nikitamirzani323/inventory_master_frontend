@@ -20,6 +20,7 @@
     let flag_id_field = false;
     let flag_btnsave = true;
     let name_field = "";
+    let status_field = "";
     let create_field = "";
     let update_field = "";
     let idrecord = "";
@@ -41,7 +42,7 @@
         }
     }
     
-    const NewData = (e,id,nmbranch,create,update) => {
+    const NewData = (e,id,nmbranch,status,create,update) => {
         sData = e
         if(sData == "New"){
             clearField()
@@ -49,6 +50,7 @@
             flag_id_field = true;
             idrecord = id
             name_field = nmbranch;
+            status_field = status;
             create_field = create;
             update_field = update;
         }
@@ -77,6 +79,10 @@
                 flag = false
                 msg += "The Name is required\n"
             }
+            if(status_field == ""){
+                flag = false
+                msg += "The Status is required\n"
+            }
         }else{
             if(idrecord == ""){
                 flag = false
@@ -86,9 +92,15 @@
                 flag = false
                 msg += "The Name is required\n"
             }
+            if(status_field == ""){
+                flag = false
+                msg += "The Status is required\n"
+            }
         }
         
         if(flag){
+            let str = idrecord.toUpperCase();
+            let newstr = str.replace(" ","");
             flag_btnsave = false;
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
@@ -101,8 +113,9 @@
                 body: JSON.stringify({
                     sdata: sData,
                     page:"CURR-SAVE",
-                    branch_id: idrecord.toUpperCase(),
+                    branch_id: newstr,
                     branch_name: name_field,
+                    branch_status: status_field,
                 }),
             });
             const json = await res.json();
@@ -131,6 +144,7 @@
     function clearField(){
         idrecord = "";
         name_field = "";
+        status_field = "";
         flag_id_field = false
         create_field = "";
         update_field = "";
@@ -157,22 +171,20 @@
                 dispatch("handleTafsirMimpi", tafsir);
         }  
     };
-    function uperCase(element) {
-        function onInput(event) {
-            element.value = element.value.toUpperCase();
-        }
-        element.addEventListener("input", onInput);
-        return {
-            destroy() {
-                element.removeEventListener("input", onInput);
-            },
-        };
-    }
-    const handleKeyboard_float = (e) => {
-        if (isNaN(parseFloat(e.target.value))) {
-            return e.target.value = "";
-        }
+    const handleKeyboard_upppercase = (e) => {
+		for (let i = 0; i < idrecord.length; i++) {
+            let str = idrecord.toUpperCase();
+            let newstr = str.replace(" ","");
+            idrecord = newstr;
+		}
 	}
+    function status(e){
+        let result = "DEACTIVE"
+        if(e == "Y"){
+            result = "ACTIVE"
+        }
+        return result
+    }
 </script>
 <div id="loader" style="margin-left:50%;{css_loader}">
     {msgloader}
@@ -211,7 +223,8 @@
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CODE</th>
+                                <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
+                                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CODE</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">BRANCH</th>
                             </tr>
                         </thead>
@@ -221,10 +234,15 @@
                                 <tr>
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i on:click={() => {
-                                                NewData("Edit",rec.home_id, rec.home_name, rec.home_create, rec.home_update);
+                                                NewData("Edit",rec.home_id, rec.home_name, rec.home_status,rec.home_create, rec.home_update);
                                             }} class="bi bi-pencil"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_no}</td>
+                                    <td NOWRAP  style="text-align: center;vertical-align: top;font-size: 11px;">
+                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.home_status_css}">
+                                            {status(rec.home_status)}
+                                        </span>
+                                    </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                 </tr>
@@ -256,22 +274,21 @@
 	modal_footer={true}>
 	<slot:template slot="body">
         <div class="mb-3">
-            <label for="exampleForm" class="form-label">ID</label>
+            <label for="exampleForm" class="form-label">CODE</label>
             {#if flag_id_field == true}
             <input bind:value={idrecord}
-                use:uperCase  
                 disabled
                 class="required form-control"
-                maxlength="5"
+                maxlength="10"
                 type="text"
-                placeholder="ID"/>
+                placeholder="CODE"/>
             {:else}
             <input bind:value={idrecord}
-                use:uperCase
+                on:keyup={handleKeyboard_upppercase}
                 class="required form-control"
-                maxlength="4"
+                maxlength="10"
                 type="text"
-                placeholder="ID"/>
+                placeholder="CODE"/>
             {/if}
         </div>
         <div class="mb-3">
@@ -280,6 +297,15 @@
                 class="required"
                 type="text"
                 placeholder="Name"/>
+        </div>
+        <div class="mb-3">
+            <label for="exampleForm" class="form-label">Status</label>
+            <select
+                class="form-control required"
+                bind:value={status_field}>
+                <option value="Y">ACTIVE</option>
+                <option value="N">DEACTIVE</option>
+            </select>
         </div>
         {#if sData != "New"}
         <div class="mb-3">

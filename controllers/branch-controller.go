@@ -68,10 +68,11 @@ func Branchhome(c *fiber.Ctx) error {
 }
 func BranchSave(c *fiber.Ctx) error {
 	type payload_branchsave struct {
-		Page        string `json:"page"`
-		Sdata       string `json:"sdata" `
-		Branch_id   string `json:"branch_id" `
-		Branch_name string `json:"branch_name" `
+		Page          string `json:"page"`
+		Sdata         string `json:"sdata" `
+		Branch_id     string `json:"branch_id" `
+		Branch_name   string `json:"branch_name" `
+		Branch_status string `json:"branch_status" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -100,6 +101,7 @@ func BranchSave(c *fiber.Ctx) error {
 			"sdata":           client.Sdata,
 			"branch_id":       client.Branch_id,
 			"branch_name":     client.Branch_name,
+			"branch_status":   client.Branch_status,
 		}).
 		Post(PATH + "api/branchsave")
 	if err != nil {

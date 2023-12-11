@@ -172,23 +172,12 @@
                 dispatch("handleTafsirMimpi", tafsir);
         }  
     };
-    function upperCase(element) {
-        function onInput(event) {
-            let str = element.value.toUpperCase();
+    const handleKeyboard_upppercase = (e) => {
+		for (let i = 0; i < idrecord.length; i++) {
+            let str = idrecord.toUpperCase();
             let newstr = str.replace(" ","");
-            element.value = newstr;
-        }
-        element.addEventListener("input", onInput);
-        return {
-            destroy() {
-                element.removeEventListener("input", onInput);
-            },
-        };
-    }
-    const handleKeyboard_float = (e) => {
-        if (isNaN(parseFloat(e.target.value))) {
-            return e.target.value = "";
-        }
+            idrecord = newstr;
+		}
 	}
     function status(e){
         let result = "DEACTIVE"
@@ -289,7 +278,6 @@
             <label for="exampleForm" class="form-label">CODE</label>
             {#if flag_id_field == true}
             <input bind:value={idrecord}
-                use:upperCase  
                 disabled
                 class="required form-control"
                 maxlength="10"
@@ -297,7 +285,7 @@
                 placeholder="CODE"/>
             {:else}
             <input bind:value={idrecord}
-                use:upperCase
+                on:keyup={handleKeyboard_upppercase}
                 class="required form-control"
                 maxlength="10"
                 type="text"
