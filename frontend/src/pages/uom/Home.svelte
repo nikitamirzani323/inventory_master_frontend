@@ -4,6 +4,7 @@
     import Panel from "../../components/Panel.svelte";
     import Loader from "../../components/Loader.svelte";
 	import Button from "../../components/Button.svelte";
+    import Input_custom from '../../components/InputCustom.svelte' 
 	import Modal from "../../components/Modal.svelte";
     import { createEventDispatcher } from "svelte";
 
@@ -173,11 +174,9 @@
         }  
     };
     const handleKeyboard_upppercase = (e) => {
-		for (let i = 0; i < idrecord.length; i++) {
-            let str = idrecord.toUpperCase();
-            let newstr = str.replace(" ","");
-            idrecord = newstr;
-		}
+        let str = e.target.value;
+        let newstr = str.replace(" ","");
+        return e.target.value = newstr.toUpperCase();
 	}
     function status(e){
         let result = "DEACTIVE"
@@ -284,12 +283,11 @@
                 type="text"
                 placeholder="CODE"/>
             {:else}
-            <input bind:value={idrecord}
-                on:keyup={handleKeyboard_upppercase}
-                class="required form-control"
-                maxlength="10"
-                type="text"
-                placeholder="CODE"/>
+            <Input_custom
+                input_tipe="text_uppercase_trim"
+                bind:value={idrecord}
+                input_disabled=false
+                input_placeholder="CODE"/>
             {/if}
         </div>
         <div class="mb-3">
