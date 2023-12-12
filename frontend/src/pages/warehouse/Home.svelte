@@ -35,6 +35,7 @@
 
     //==STORAGE==
     let sDataStorage = "";
+    let total_liststorage = 0;
     let liststorage = [];
     let storage_warehouse_id = "";
     let storage_warehouse_title = "";
@@ -44,6 +45,20 @@
     let storage_status_field = "";
     let storage_create_field = "";
     let storage_update_field = "";
+
+    //==BIN==
+    let sDataBin = "";
+    let total_listbin = 0;
+    let listuom = [];
+    let listbin = [];
+    let bin_storage_id = "";
+    let bin_flag_id = false;
+    let bin_id_field = "";
+    let bin_name_field = "";
+    let bin_status_field = "";
+    let bin_create_field = "";
+    let bin_update_field = "";
+
 
     let idrecord = "";
     let searchHome = "";
@@ -95,6 +110,12 @@
         myModal_newentry = new bootstrap.Modal(document.getElementById("modalliststorage"));
         myModal_newentry.show();
     };
+    const showStorageBin = (idstorage) => {
+        bin_storage_id = idstorage
+        call_bin(idstorage)
+        myModal_newentry = new bootstrap.Modal(document.getElementById("modalliststoragebin"));
+        myModal_newentry.show();
+    };
     const call_formliststorage = (e,idstorage,nmstorage,statustorage,create,update) => {
         sDataStorage = e
         storage_flag_id = false;
@@ -108,6 +129,22 @@
         }
 
         myModal_newentry = new bootstrap.Modal(document.getElementById("modalcrudstorage"));
+        myModal_newentry.show();
+        
+    };
+    const call_formlistbin = (e,idstorage,nmstorage,statustorage,create,update) => {
+        call_uom()
+        sDataBin = e
+        if(sDataBin == "Edit"){
+            storage_flag_id = true;
+            storage_id_field = idstorage;
+            storage_name_field = nmstorage;
+            storage_status_field = statustorage;
+            storage_create_field = create;
+            storage_update_field = update;
+        }
+
+        myModal_newentry = new bootstrap.Modal(document.getElementById("modalcrudbin"));
         myModal_newentry.show();
         
     };
@@ -287,6 +324,7 @@
     }
     async function call_storage(idwarehouse) {
         liststorage = [];
+        total_liststorage = 0;
         const res = await fetch("/api/warehousestorage", {
             method: "POST",
             headers: {
@@ -302,6 +340,7 @@
             let record = json.record;
             if (record != null) {
                 let no = 0;
+                total_liststorage = record.length;
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
                     liststorage = [
@@ -314,6 +353,72 @@
                             warehousestorage_status_css: record[i]["warehousestorage_status_css"],
                             warehousestorage_create: record[i]["warehousestorage_create"],
                             warehousestorage_update: record[i]["warehousestorage_update"],
+                        },
+                    ];
+                }
+            }
+        }
+    }
+    async function call_bin(idstorage) {
+        listbin = [];
+        total_listbin = 0;
+        const res = await fetch("/api/warehousestoragebin", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                storage_id: idstorage,
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                total_listbin = record.length;
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    listbin = [
+                        ...listbin,
+                        {
+                            warehousestorage_no: no,
+                            warehousestorage_id: record[i]["warehousestorage_id"],
+                            warehousestorage_name: record[i]["warehousestorage_name"],
+                            warehousestorage_status: record[i]["warehousestorage_status"],
+                            warehousestorage_status_css: record[i]["warehousestorage_status_css"],
+                            warehousestorage_create: record[i]["warehousestorage_create"],
+                            warehousestorage_update: record[i]["warehousestorage_update"],
+                        },
+                    ];
+                }
+            }
+        }
+    }
+    async function call_uom() {
+        listuom = [];
+        const res = await fetch("/api/uomshare", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    listuom = [
+                        ...listuom,
+                        {
+                            uom_id: record[i]["uom_id"],
+                            uom_name: record[i]["uom_name"],
                         },
                     ];
                 }
@@ -599,7 +704,7 @@
 <Modal
 	modal_id="modalliststorage"
 	modal_size="modal-dialog-centered"
-	modal_title="Storage - {storage_warehouse_title}"
+	modal_title="STORAGE | {storage_warehouse_title}"
     modal_body_css="height:500px; overflow-y: scroll;"
     modal_footer_css="padding:5px;"
 	modal_footer={true}>
@@ -614,32 +719,44 @@
                     <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">STORAGE</th>
                 </tr>
             </thead>
-            <tbody>
-                {#each liststorage as rec }
+            {#if total_liststorage > 0}
+                <tbody>
+                    {#each liststorage as rec }
+                        <tr>
+                            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                                <i on:click={() => {
+                                        //e,idstorage,nmstorage,statustorage
+                                        call_formliststorage("Edit",rec.warehousestorage_id,rec.warehousestorage_name,rec.warehousestorage_status,
+                                        rec.warehousestorage_create,rec.warehousestorage_update);
+                                    }} class="bi bi-pencil"></i>
+                            </td>
+                            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                                <i on:click={() => {
+                                    showStorageBin(rec.warehousestorage_id);
+                                    }} class="bi bi-box-seam"></i>
+                            </td>
+                            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_no}</td>
+                            <td NOWRAP  style="text-align: center;vertical-align: top;font-size: 11px;">
+                                <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.warehousestorage_status_css}">
+                                    {status(rec.warehousestorage_status)}
+                                </span>
+                            </td>
+                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_id}</td>
+                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_name}</td>
+                        </tr>
+                    {/each}
+                </tbody>
+            {:else}
+                <tbody>
                     <tr>
-                        <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
-                            <i on:click={() => {
-                                    //e,idstorage,nmstorage,statustorage
-                                    call_formliststorage("Edit",rec.warehousestorage_id,rec.warehousestorage_name,rec.warehousestorage_status,
-                                    rec.warehousestorage_create,rec.warehousestorage_update);
-                                }} class="bi bi-pencil"></i>
+                        <td colspan="6">
+                            <center>
+                                <Loader />
+                            </center>
                         </td>
-                        <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
-                            <i on:click={() => {
-                                showStorage(rec.home_id);
-                                }} class="bi bi-box-seam"></i>
-                        </td>
-                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_no}</td>
-                        <td NOWRAP  style="text-align: center;vertical-align: top;font-size: 11px;">
-                            <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.warehousestorage_status_css}">
-                                {status(rec.warehousestorage_status)}
-                            </span>
-                        </td>
-                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_id}</td>
-                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_name}</td>
                     </tr>
-                {/each}
-            </tbody>
+                </tbody>
+            {/if}
         </table>
 	</slot:template>
 	<slot:template slot="footer">
@@ -710,6 +827,136 @@
                 </div>
             </div>
         {/if}
+	</slot:template>
+	<slot:template slot="footer">
+        {#if flag_btnsave}
+        <Button on:click={() => {
+                handleSave_storage();
+            }} 
+            
+            button_title="<i class='bi bi-save'></i>&nbsp;&nbspSave"
+            button_css="btn-warning"/>
+        {/if}
+	</slot:template>
+</Modal>
+
+<Modal
+	modal_id="modalliststoragebin"
+	modal_size="modal-dialog-centered"
+	modal_title="BIN | {bin_storage_id}"
+    modal_body_css="height:500px; overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+	modal_footer={true}>
+	<slot:template slot="body">
+        <table class="table table-striped ">
+            <thead>
+                <tr>
+                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;">&nbsp;</th>
+                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                    <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
+                    <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CODE</th>
+                    <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">BIN</th>
+                </tr>
+            </thead>
+            {#if total_listbin > 0}
+                <tbody>
+                    {#each listbin as rec }
+                        <tr>
+                            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                                <i on:click={() => {
+                                        //e,idstorage,nmstorage,statustorage
+                                        call_formliststorage("Edit",rec.warehousestorage_id,rec.warehousestorage_name,rec.warehousestorage_status,
+                                        rec.warehousestorage_create,rec.warehousestorage_update);
+                                    }} class="bi bi-pencil"></i>
+                            </td>
+                            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_no}</td>
+                            <td NOWRAP  style="text-align: center;vertical-align: top;font-size: 11px;">
+                                <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.warehousestorage_status_css}">
+                                    {status(rec.warehousestorage_status)}
+                                </span>
+                            </td>
+                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_id}</td>
+                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_name}</td>
+                        </tr>
+                    {/each}
+                </tbody>
+            {:else}
+                <tbody>
+                    <tr>
+                        <td colspan="6">
+                            <center>
+                                <Loader />
+                            </center>
+                        </td>
+                    </tr>
+                </tbody>
+            {/if}
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+        <Button on:click={() => {
+                call_formlistbin("New");
+            }} 
+            button_title="<i class='bi bi-plus-lg'></i>&nbsp;New"
+            button_css="btn-info"/>
+	</slot:template>
+</Modal>
+
+<Modal
+	modal_id="modalcrudbin"
+	modal_size="modal-dialog-centered modal-lg"
+	modal_title="Bin - {storage_warehouse_title+"  / "+sDataStorage}"
+    modal_footer_css="padding:5px;"
+	modal_footer={true}>
+	<slot:template slot="body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Name</label>
+                    <Input_custom
+                        bind:value={storage_name_field}
+                        input_tipe="text_standart"
+                        input_required="required"
+                        input_maxlength="50"
+                        input_placeholder="Name"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Status</label>
+                    <select
+                        class="form-control required"
+                        bind:value={storage_status_field}>
+                        <option value="">--Please Select--</option>
+                        <option value="Y">ACTIVE</option>
+                        <option value="N">DEACTIVE</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Uom</label>
+                    <select
+                        on:change="{handleChangeBranchTable}"
+                        bind:value="{warehouse_idbranch_select}" 
+                        class="form-control required">
+                        <option value="">--Please Select--</option>
+                        {#each listuom as rec}
+                        <option value="{rec.uom_id}">{rec.uom_name}</option>
+                        {/each}
+                    </select>
+                </div>
+                {#if sDataBin != "New"}
+                    <div class="mb-3">
+                        <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
+                            Create : {storage_create_field}<br />
+                            Update : {storage_update_field}
+                        </div>
+                    </div>
+                {/if}
+            </div>
+
+        </div>
+        
+       
 	</slot:template>
 	<slot:template slot="footer">
         {#if flag_btnsave}
