@@ -595,10 +595,11 @@
         <table class="table table-striped ">
             <thead>
                 <tr>
-                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
+                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                    <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
                     <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CODE</th>
-                    <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                    <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">STORAGE</th>
                 </tr>
             </thead>
             <tbody>
@@ -611,7 +612,17 @@
                                     rec.warehousestorage_create,rec.warehousestorage_update);
                                 }} class="bi bi-pencil"></i>
                         </td>
+                        <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                            <i on:click={() => {
+                                showStorage(rec.home_id);
+                                }} class="bi bi-box-seam"></i>
+                        </td>
                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_no}</td>
+                        <td NOWRAP  style="text-align: center;vertical-align: top;font-size: 11px;">
+                            <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.warehousestorage_status_css}">
+                                {status(rec.warehousestorage_status)}
+                            </span>
+                        </td>
                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_id}</td>
                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_name}</td>
                     </tr>
