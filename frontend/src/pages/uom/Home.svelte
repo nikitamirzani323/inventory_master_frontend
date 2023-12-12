@@ -1,6 +1,4 @@
-<script>
-    import { Input } from "sveltestrap";
-    
+<script> 
     import Panel from "../../components/Panel.svelte";
     import Loader from "../../components/Loader.svelte";
 	import Button from "../../components/Button.svelte";

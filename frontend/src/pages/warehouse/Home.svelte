@@ -2,6 +2,7 @@
     import { Input } from "sveltestrap";
     
     import Panel from "../../components/Panel.svelte";
+    import Input_custom from '../../components/InputCustom.svelte' 
     import Loader from "../../components/Loader.svelte";
 	import Button from "../../components/Button.svelte";
 	import Modal from "../../components/Modal.svelte";
@@ -95,6 +96,7 @@
     };
     const call_formliststorage = (e,idstorage,nmstorage,statustorage,create,update) => {
         sDataStorage = e
+        storage_flag_id = false;
         if(sDataStorage == "Edit"){
             storage_flag_id = true;
             storage_id_field = idstorage;
@@ -365,18 +367,7 @@
                 dispatch("handleTafsirMimpi", tafsir);
         }  
     };
-    const handleKeyboard_upppercase = () => {
-		for (let i = 0; i < idrecord.length; i++) {
-            let str = idrecord.toUpperCase();
-            let newstr = str.replace(" ","");
-            idrecord = newstr;
-		}
-        for (let i = 0; i < storage_id_field.length; i++) {
-            let str = storage_id_field.toUpperCase();
-            let newstr = str.replace(" ","");
-            storage_id_field = newstr;
-		}
-	}
+    
     
     function status(e){
         let result = "DEACTIVE"
@@ -503,31 +494,34 @@
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">CODE</label>
                     {#if flag_id_field == true}
-                    <input bind:value={idrecord}
-                        disabled
-                        class="required form-control"
-                        maxlength="18"
-                        type="text"
-                        placeholder="CODE"/>
+                    <Input_custom
+                        bind:value={idrecord}
+                        input_tipe="text_uppercase_trim"
+                        input_required="required"
+                        input_maxlength="18"
+                        disabled=true
+                        input_placeholder="CODE"/>
                     {:else}
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">{code_branch_display}-</span>
-                        <input bind:value={idrecord}
-                            on:keyup={handleKeyboard_upppercase}
-                            class="required form-control"
-                            maxlength="18"
-                            type="text"
-                            placeholder="CODE"/>
+                        <Input_custom
+                            bind:value={idrecord}
+                            input_tipe="text_uppercase_trim"
+                            input_required="required"
+                            input_maxlength="18"
+                            input_placeholder="CODE"/>
                     </div>
                     
                     {/if}
                 </div>
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Name</label>
-                    <Input bind:value={warehouse_name_field}
-                        class="required"
-                        type="text"
-                        placeholder="Name"/>
+                    <Input_custom
+                        bind:value={warehouse_name_field}
+                        input_tipe="text_standart"
+                        input_required="required"
+                        input_maxlength="60"
+                        input_placeholder="Name"/>
                 </div>
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Alamat</label>
@@ -538,17 +532,20 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Phone1</label>
-                    <Input bind:value={warehouse_phone1_field}
-                        class="required"
-                        type="text"
-                        placeholder="Phone1"/>
+                    <Input_custom
+                        bind:value={warehouse_phone1_field}
+                        input_tipe="text_standart"
+                        input_required="required"
+                        input_maxlength="20"
+                        input_placeholder="Phone1"/>
                 </div>
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Phone2</label>
-                    <Input bind:value={warehouse_phone2_field}
-                        class=""
-                        type="text"
-                        placeholder="Phone2"/>
+                    <Input_custom
+                        bind:value={warehouse_phone2_field}
+                        input_tipe="text_standart"
+                        input_maxlength="20"
+                        input_placeholder="Phone2"/>
                 </div>
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Status</label>
@@ -569,8 +566,6 @@
                 {/if}
             </div>
         </div>
-        
-        
 	</slot:template>
 	<slot:template slot="footer">
         {#if flag_btnsave}
@@ -652,21 +647,33 @@
                 {#if sDataStorage == "New"}
                 <span class="input-group-text" id="basic-addon1">{storage_warehouse_id}-</span>
                 {/if}
-                <input bind:value={storage_id_field}
-                    on:keyup={handleKeyboard_upppercase}
-                    class="required form-control"
-                    disabled={storage_flag_id}
-                    maxlength="10"
-                    type="text"
-                    placeholder="CODE"/>
+                {#if storage_flag_id}
+                    <Input_custom
+                        bind:value={storage_id_field}
+                        input_tipe="text_uppercase_trim"
+                        input_required="required"
+                        input_maxlength="10"
+                        disabled=true
+                        input_placeholder="CODE"/>
+                {:else}
+                    <Input_custom
+                        bind:value={storage_id_field}
+                        input_tipe="text_uppercase_trim"
+                        input_required="required"
+                        input_maxlength="10"
+                        input_placeholder="CODE"/>
+                {/if}
+                
             </div>
         </div>
         <div class="mb-3">
             <label for="exampleForm" class="form-label">Name</label>
-            <Input bind:value={storage_name_field}
-                class="required"
-                type="text"
-                placeholder="Name"/>
+            <Input_custom
+                bind:value={storage_name_field}
+                input_tipe="text_standart"
+                input_required="required"
+                input_maxlength="50"
+                input_placeholder="Name"/>
         </div>
         <div class="mb-3">
             <label for="exampleForm" class="form-label">Status</label>

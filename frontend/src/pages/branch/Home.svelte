@@ -1,6 +1,4 @@
 <script>
-    import { Input } from "sveltestrap";
-    
     import Panel from "../../components/Panel.svelte";
     import Input_custom from '../../components/InputCustom.svelte' 
     import Loader from "../../components/Loader.svelte";
@@ -325,6 +323,3 @@
         {/if}
 	</slot:template>
 </Modal>
-
-
-
