@@ -2,6 +2,7 @@
     import { Input } from "sveltestrap";
     
     import Panel from "../../components/Panel.svelte";
+    import Input_custom from '../../components/InputCustom.svelte' 
     import Loader from "../../components/Loader.svelte";
 	import Button from "../../components/Button.svelte";
 	import Modal from "../../components/Modal.svelte";
@@ -171,13 +172,6 @@
                 dispatch("handleTafsirMimpi", tafsir);
         }  
     };
-    const handleKeyboard_upppercase = (e) => {
-		for (let i = 0; i < idrecord.length; i++) {
-            let str = idrecord.toUpperCase();
-            let newstr = str.replace(" ","");
-            idrecord = newstr;
-		}
-	}
     function status(e){
         let result = "DEACTIVE"
         if(e == "Y"){
@@ -276,33 +270,37 @@
         <div class="mb-3">
             <label for="exampleForm" class="form-label">CODE</label>
             {#if flag_id_field == true}
-            <input bind:value={idrecord}
-                disabled
-                class="required form-control"
-                maxlength="10"
-                type="text"
-                placeholder="CODE"/>
+            <Input_custom
+                bind:value={idrecord}
+                input_tipe="text_uppercase_trim"
+                input_required="required"
+                input_maxlength="10"
+                disabled=true
+                input_placeholder="CODE"/>
             {:else}
-            <input bind:value={idrecord}
-                on:keyup={handleKeyboard_upppercase}
-                class="required form-control"
-                maxlength="10"
-                type="text"
-                placeholder="CODE"/>
+            <Input_custom
+                bind:value={idrecord}
+                input_tipe="text_uppercase_trim"
+                input_required="required"
+                input_maxlength="10"
+                input_placeholder="CODE"/>
             {/if}
         </div>
         <div class="mb-3">
             <label for="exampleForm" class="form-label">Name</label>
-            <Input bind:value={name_field}
-                class="required"
-                type="text"
-                placeholder="Name"/>
+            <Input_custom
+                bind:value={name_field}
+                input_tipe="text_standart"
+                input_required="required"
+                input_maxlength="50"
+                input_placeholder="Name"/>
         </div>
         <div class="mb-3">
             <label for="exampleForm" class="form-label">Status</label>
             <select
                 class="form-control required"
                 bind:value={status_field}>
+                <option value="">--Please Select--</option>
                 <option value="Y">ACTIVE</option>
                 <option value="N">DEACTIVE</option>
             </select>
