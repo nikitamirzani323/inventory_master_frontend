@@ -23,6 +23,7 @@
     let flag_idbranch_field = false;
     let flag_btnsave = true;
     let code_branch_display = ""
+    let warehouse_idbranch_select = "";
     let warehouse_idbranch_field = "";
     let warehouse_name_field = "";
     let warehouse_alamat_field = "";
@@ -356,6 +357,9 @@
     const handleChangeBranch = (e) => {
         code_branch_display = e.target.value
     };
+    const handleChangeBranchTable = (e) => {
+        alert(e.target.value)
+    };
     const handleKeyboard_checkenter = (e) => {
         let keyCode = e.which || e.keyCode;
         if (keyCode === 13) {
@@ -398,14 +402,27 @@
                 card_title="{title_page}"
                 card_footer={totalrecord}>
                 <slot:template slot="card-search">
-                    <div class="col-lg-12" style="padding: 5px;">
-                        <input
-                            bind:value={searchHome}
-                            on:keypress={handleKeyboard_checkenter}
-                            type="text"
-                            class="form-control"
-                            placeholder="Search Warehouse"
-                            aria-label="Search"/>
+                    <div class="row" style="padding: 5px;">
+                        <div class="col-lg-6">
+                            <select
+                                on:change="{handleChangeBranchTable}"
+                                bind:value="{warehouse_idbranch_select}" 
+                                class=" form-control ">
+                                <option value="">--Please Select Branch--</option>
+                                {#each listBranch as rec}
+                                <option value="{rec.branch_id}">{rec.branch_name}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div class="col-lg-6">
+                            <input
+                                bind:value={searchHome}
+                                on:keypress={handleKeyboard_checkenter}
+                                type="text"
+                                class="form-control"
+                                placeholder="Search Warehouse"
+                                aria-label="Search"/>
+                        </div>
                     </div>
                 </slot:template>
                 <slot:template slot="card-body">
