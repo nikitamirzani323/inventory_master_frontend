@@ -8,6 +8,7 @@
     let token = localStorage.getItem("token");
     let akses_page = false;
     let listHome = [];
+    let listBranch = [];
     let record = "";
     let record_message = "";
     let totalrecord = 0;
@@ -46,6 +47,7 @@
         const json = await res.json();
         if (json.status == 200) {
             record = json.record;
+            let record_listbranch = json.listbranch;
             record_message = json.message;
             if (record != null) {
                 totalrecord = record.length;
@@ -57,15 +59,29 @@
                         ...listHome,
                         {
                             home_no: no,
-                            home_id: record[i]["uom_id"],
-                            home_name: record[i]["uom_name"],
-                            home_status: record[i]["uom_status"],
-                            home_status_css: record[i]["uom_status_css"],
-                            home_create: record[i]["uom_create"],
-                            home_update: record[i]["uom_update"],
+                            home_id: record[i]["warehouse_id"],
+                            home_idbranch: record[i]["warehouse_idbranch"],
+                            home_nmbranch: record[i]["warehouse_nmbranch"],
+                            home_name: record[i]["warehouse_name"],
+                            home_alamat: record[i]["warehouse_alamat"],
+                            home_phone1: record[i]["warehouse_phone1"],
+                            home_phone2: record[i]["warehouse_phone2"],
+                            home_status: record[i]["warehouse_status"],
+                            home_status_css: record[i]["warehouse_status_css"],
+                            home_create: record[i]["warehouse_create"],
+                            home_update: record[i]["warehouse_update"],
                         },
                     ];
                 }
+            }
+            for (var i = 0; i < record_listbranch.length; i++) {
+                listBranch = [
+                    ...listBranch,
+                    {
+                        branch_id: record_listbranch[i]["branch_id"],
+                        branch_name: record_listbranch[i]["branch_name"],
+                    },
+                ];
             }
         } else {
             logout();
@@ -77,6 +93,7 @@
     }
     const handleRefreshData = (e) => {
         listHome = [];
+        listBranch = [];
         totalrecord = 0;
         setTimeout(function () {
             initHome();
@@ -92,5 +109,6 @@
     {table_header_font}
     {table_body_font}
     {listHome}
+    {listBranch}
     {totalrecord}/>
 {/if}

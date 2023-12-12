@@ -12,17 +12,37 @@
 	export let table_body_font = ""
 	export let token = ""
 	export let listHome = []
+	export let listBranch = []
 	export let totalrecord = 0
     let dispatch = createEventDispatcher();
 	let title_page = "WAREHOUSE"
     let sData = "";
     let myModal_newentry = "";
     let flag_id_field = false;
+    let flag_idbranch_field = false;
     let flag_btnsave = true;
-    let name_field = "";
-    let status_field = "";
-    let create_field = "";
-    let update_field = "";
+    let code_branch_display = ""
+    let warehouse_idbranch_field = "";
+    let warehouse_name_field = "";
+    let warehouse_alamat_field = "";
+    let warehouse_phone1_field = "";
+    let warehouse_phone2_field = "";
+    let warehouse_status_field = "";
+    let warehouse_create_field = "";
+    let warehouse_update_field = "";
+
+    //==STORAGE==
+    let sDataStorage = "";
+    let liststorage = [];
+    let storage_warehouse_id = "";
+    let storage_warehouse_title = "";
+    let storage_flag_id = false;
+    let storage_id_field = "";
+    let storage_name_field = "";
+    let storage_status_field = "";
+    let storage_create_field = "";
+    let storage_update_field = "";
+
     let idrecord = "";
     let searchHome = "";
     let filterHome = [];
@@ -33,6 +53,9 @@
         if (searchHome) {
             filterHome = listHome.filter(
                 (item) =>
+                    item.home_id
+                        .toLowerCase()
+                        .includes(searchHome.toLowerCase()) || 
                     item.home_name
                         .toLowerCase()
                         .includes(searchHome.toLowerCase())
@@ -42,19 +65,46 @@
         }
     }
     
-    const NewData = (e,id,nmuom,status,create,update) => {
+    const NewData = (e,id,idbranch,name,alamat,phone1,phone2,status,create,update) => {
         sData = e
         if(sData == "New"){
             clearField()
         }else{
+            flag_idbranch_field = true;
             flag_id_field = true;
             idrecord = id
-            name_field = nmuom;
-            status_field = status;
-            create_field = create;
-            update_field = update;
+            warehouse_idbranch_field = idbranch;
+            warehouse_name_field = name;
+            warehouse_alamat_field = alamat;
+            warehouse_phone1_field = phone1;
+            warehouse_phone2_field = phone2;
+            warehouse_status_field = status;
+            warehouse_create_field = create;
+            warehouse_update_field = update;
         }
         myModal_newentry = new bootstrap.Modal(document.getElementById("modalentrycrud"));
+        myModal_newentry.show();
+        
+    };
+    const showStorage = (idwarehouse) => {
+        storage_warehouse_id = idwarehouse
+        storage_warehouse_title = idwarehouse
+        call_storage(idwarehouse)
+        myModal_newentry = new bootstrap.Modal(document.getElementById("modalliststorage"));
+        myModal_newentry.show();
+    };
+    const call_formliststorage = (e,idstorage,nmstorage,statustorage,create,update) => {
+        sDataStorage = e
+        if(sDataStorage == "Edit"){
+            storage_flag_id = true;
+            storage_id_field = idstorage;
+            storage_name_field = nmstorage;
+            storage_status_field = statustorage;
+            storage_create_field = create;
+            storage_update_field = update;
+        }
+
+        myModal_newentry = new bootstrap.Modal(document.getElementById("modalcrudstorage"));
         myModal_newentry.show();
         
     };
@@ -75,11 +125,19 @@
                 flag = false
                 msg += "The CODE is maxlength 5\n"
             }
-            if(name_field == ""){
+            if(warehouse_name_field == ""){
                 flag = false
                 msg += "The Name is required\n"
             }
-            if(status_field == ""){
+            if(warehouse_alamat_field == ""){
+                flag = false
+                msg += "The Alamat is required\n"
+            }
+            if(warehouse_phone1_field == ""){
+                flag = false
+                msg += "The Phone1 is required\n"
+            }
+            if(warehouse_status_field == ""){
                 flag = false
                 msg += "The Status is required\n"
             }
@@ -88,11 +146,19 @@
                 flag = false
                 msg += "The CODE is required\n"
             }
-            if(name_field == ""){
+            if(warehouse_name_field == ""){
                 flag = false
                 msg += "The Name is required\n"
             }
-            if(status_field == ""){
+            if(warehouse_alamat_field == ""){
+                flag = false
+                msg += "The Alamat is required\n"
+            }
+            if(warehouse_phone1_field == ""){
+                flag = false
+                msg += "The Phone1 is required\n"
+            }
+            if(warehouse_status_field == ""){
                 flag = false
                 msg += "The Status is required\n"
             }
@@ -104,7 +170,7 @@
             flag_btnsave = false;
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
-            const res = await fetch("/api/uomsave", {
+            const res = await fetch("/api/warehousesave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -113,9 +179,13 @@
                 body: JSON.stringify({
                     sdata: sData,
                     page:"CURR-SAVE",
-                    uom_id: newstr,
-                    uom_name: name_field,
-                    uom_status: status_field,
+                    warehouse_id: newstr,
+                    warehouse_idbranch: warehouse_idbranch_field,
+                    warehouse_name: warehouse_name_field,
+                    warehouse_alamat: warehouse_alamat_field,
+                    warehouse_phone1: warehouse_phone1_field,
+                    warehouse_phone2: warehouse_phone2_field,
+                    warehouse_status: warehouse_status_field,
                 }),
             });
             const json = await res.json();
@@ -140,14 +210,135 @@
             alert(msg)
         }
     }
-    
+    async function handleSave_storage() {
+        let flag = true
+        let msg = ""
+        if(sDataStorage == "New"){
+            if(storage_warehouse_id == ""){
+                flag = false
+                msg += "The Warehouse is required\n"
+            }
+            if(storage_id_field == ""){
+                flag = false
+                msg += "The Code is required\n"
+            }
+            if(storage_name_field == ""){
+                flag = false
+                msg += "The Name is required\n"
+            }
+            if(storage_status_field == ""){
+                flag = false
+                msg += "The Status is required\n"
+            }
+        }else{
+            if(storage_name_field == ""){
+                flag = false
+                msg += "The Name is required\n"
+            }
+            if(storage_status_field == ""){
+                flag = false
+                msg += "The Status is required\n"
+            }
+        }
+        
+        if(flag){
+            flag_btnsave = false;
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            const res = await fetch("/api/warehousestoragesave", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    sdata: sDataStorage,
+                    page:"CURR-SAVE",
+                    warehousestorage_id: storage_id_field,
+                    warehousestorage_idwarehouse: storage_warehouse_id,
+                    warehousestorage_name: storage_name_field,
+                    warehousestorage_status: storage_status_field,
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                flag_btnsave = true;
+                if(sDataStorage=="New"){
+                    clearField_storage()
+                }
+                msgloader = json.message;
+                call_storage(storage_warehouse_id)
+            } else if(json.status == 403){
+                flag_btnsave = true;
+                alert(json.message)
+            } else {
+                flag_btnsave = true;
+                msgloader = json.message;
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
+    async function call_storage(idwarehouse) {
+        liststorage = [];
+        const res = await fetch("/api/warehousestorage", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                warehouse_id: idwarehouse,
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    liststorage = [
+                        ...liststorage,
+                        {
+                            warehousestorage_no: no,
+                            warehousestorage_id: record[i]["warehousestorage_id"],
+                            warehousestorage_name: record[i]["warehousestorage_name"],
+                            warehousestorage_status: record[i]["warehousestorage_status"],
+                            warehousestorage_status_css: record[i]["warehousestorage_status_css"],
+                            warehousestorage_create: record[i]["warehousestorage_create"],
+                            warehousestorage_update: record[i]["warehousestorage_update"],
+                        },
+                    ];
+                }
+            }
+        }
+    }
     function clearField(){
         idrecord = "";
-        name_field = "";
-        status_field = "";
+        flag_idbranch_field = false
         flag_id_field = false
-        create_field = "";
-        update_field = "";
+        code_branch_display = ""
+        warehouse_idbranch_field = "";
+        warehouse_name_field = "";
+        warehouse_alamat_field = "";
+        warehouse_phone1_field = "";
+        warehouse_phone2_field = "";
+        warehouse_status_field = "";
+        warehouse_create_field = "";
+        warehouse_update_field = "";
+    }
+    function clearField_storage(){
+        storage_flag_id = false;
+        sDataStorage = "";
+        storage_id_field = "";
+        storage_name_field = "";
+        storage_status_field = "";
+        storage_create_field = "";
+        storage_update_field = "";
     }
     function callFunction(event){
         switch(event.detail){
@@ -160,7 +351,9 @@
                 handleSubmit();break;
         }
     }
-
+    const handleChangeBranch = (e) => {
+        code_branch_display = e.target.value
+    };
     const handleKeyboard_checkenter = (e) => {
         let keyCode = e.which || e.keyCode;
         if (keyCode === 13) {
@@ -172,13 +365,19 @@
                 dispatch("handleTafsirMimpi", tafsir);
         }  
     };
-    const handleKeyboard_upppercase = (e) => {
+    const handleKeyboard_upppercase = () => {
 		for (let i = 0; i < idrecord.length; i++) {
             let str = idrecord.toUpperCase();
             let newstr = str.replace(" ","");
             idrecord = newstr;
 		}
+        for (let i = 0; i < storage_id_field.length; i++) {
+            let str = storage_id_field.toUpperCase();
+            let newstr = str.replace(" ","");
+            storage_id_field = newstr;
+		}
 	}
+    
     function status(e){
         let result = "DEACTIVE"
         if(e == "Y"){
@@ -214,7 +413,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Uom"
+                            placeholder="Search Warehouse"
                             aria-label="Search"/>
                     </div>
                 </slot:template>
@@ -222,11 +421,12 @@
                     <table class="table table-striped ">
                         <thead>
                             <tr>
-                                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
+                                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                                 <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
-                                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CODE</th>
-                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">UOM</th>
+                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CODE</th>
+                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">BRANCH</th>
+                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">WAREHOUSE</th>
                             </tr>
                         </thead>
                         {#if totalrecord > 0}
@@ -235,8 +435,16 @@
                                 <tr>
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i on:click={() => {
-                                                NewData("Edit",rec.home_id, rec.home_name,rec.home_status, rec.home_create, rec.home_update);
+                                            //e,id,idbranch,name,alamat,phone1,phone2,status,create,update
+                                                NewData("Edit",rec.home_id, rec.home_idbranch,
+                                                rec.home_name,rec.home_alamat,rec.home_phone1,rec.home_phone2,
+                                                rec.home_status, rec.home_create, rec.home_update);
                                             }} class="bi bi-pencil"></i>
+                                    </td>
+                                    <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                                        <i on:click={() => {
+                                            showStorage(rec.home_id);
+                                            }} class="bi bi-box-seam"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_no}</td>
                                     <td NOWRAP  style="text-align: center;vertical-align: top;font-size: 11px;">
@@ -244,7 +452,8 @@
                                             {status(rec.home_status)}
                                         </span>
                                     </td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
+                                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
+                                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmbranch}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                 </tr>
                             {/each}
@@ -269,53 +478,99 @@
 
 <Modal
 	modal_id="modalentrycrud"
-	modal_size="modal-dialog-centered"
+	modal_size="modal-dialog-centered modal-lg"
 	modal_title="{title_page+"/"+sData}"
     modal_footer_css="padding:5px;"
 	modal_footer={true}>
 	<slot:template slot="body">
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">CODE</label>
-            {#if flag_id_field == true}
-            <input bind:value={idrecord}
-                disabled
-                class="required form-control"
-                maxlength="10"
-                type="text"
-                placeholder="CODE"/>
-            {:else}
-            <input bind:value={idrecord}
-                on:keyup={handleKeyboard_upppercase}
-                class="required form-control"
-                maxlength="10"
-                type="text"
-                placeholder="CODE"/>
-            {/if}
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Name</label>
-            <Input bind:value={name_field}
-                class="required"
-                type="text"
-                placeholder="Name"/>
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Status</label>
-            <select
-                class="form-control required"
-                bind:value={status_field}>
-                <option value="Y">ACTIVE</option>
-                <option value="N">DEACTIVE</option>
-            </select>
-        </div>
-        {#if sData != "New"}
-        <div class="mb-3">
-            <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
-                Create : {create_field}<br />
-                Update : {update_field}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Branch</label>
+                    <select
+                        on:change="{handleChangeBranch}"
+                        bind:value="{warehouse_idbranch_field}" 
+                        name="currency" id="currency" 
+                        disabled={flag_idbranch_field} 
+                        class="required form-control ">
+                        <option value="">--Please Select--</option>
+                        {#each listBranch as rec}
+                        <option value="{rec.branch_id}">{rec.branch_name}</option>
+                        {/each}
+                    </select>
+                    
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">CODE</label>
+                    {#if flag_id_field == true}
+                    <input bind:value={idrecord}
+                        disabled
+                        class="required form-control"
+                        maxlength="18"
+                        type="text"
+                        placeholder="CODE"/>
+                    {:else}
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">{code_branch_display}-</span>
+                        <input bind:value={idrecord}
+                            on:keyup={handleKeyboard_upppercase}
+                            class="required form-control"
+                            maxlength="18"
+                            type="text"
+                            placeholder="CODE"/>
+                    </div>
+                    
+                    {/if}
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Name</label>
+                    <Input bind:value={warehouse_name_field}
+                        class="required"
+                        type="text"
+                        placeholder="Name"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Alamat</label>
+                    <textarea 
+                        style="height: 100px;resize: none;" bind:value={warehouse_alamat_field} class="form-control required"/>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Phone1</label>
+                    <Input bind:value={warehouse_phone1_field}
+                        class="required"
+                        type="text"
+                        placeholder="Phone1"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Phone2</label>
+                    <Input bind:value={warehouse_phone2_field}
+                        class=""
+                        type="text"
+                        placeholder="Phone2"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Status</label>
+                    <select
+                        class="form-control required"
+                        bind:value={warehouse_status_field}>
+                        <option value="Y">ACTIVE</option>
+                        <option value="N">DEACTIVE</option>
+                    </select>
+                </div>
+                {#if sData != "New"}
+                <div class="mb-3">
+                    <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
+                        Create : {warehouse_create_field}<br />
+                        Update : {warehouse_update_field}
+                    </div>
+                </div>
+                {/if}
             </div>
         </div>
-        {/if}
+        
+        
 	</slot:template>
 	<slot:template slot="footer">
         {#if flag_btnsave}
@@ -329,5 +584,106 @@
 	</slot:template>
 </Modal>
 
+<Modal
+	modal_id="modalliststorage"
+	modal_size="modal-dialog-centered"
+	modal_title="Storage - {storage_warehouse_title}"
+    modal_body_css="height:500px; overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+	modal_footer={true}>
+	<slot:template slot="body">
+        <table class="table table-striped ">
+            <thead>
+                <tr>
+                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
+                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                    <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CODE</th>
+                    <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each liststorage as rec }
+                    <tr>
+                        <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                            <i on:click={() => {
+                                    //e,idstorage,nmstorage,statustorage
+                                    call_formliststorage("Edit",rec.warehousestorage_id,rec.warehousestorage_name,rec.warehousestorage_status,
+                                    rec.warehousestorage_create,rec.warehousestorage_update);
+                                }} class="bi bi-pencil"></i>
+                        </td>
+                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_no}</td>
+                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_id}</td>
+                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_name}</td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+        <Button on:click={() => {
+                call_formliststorage("New");
+            }} 
+            button_title="<i class='bi bi-plus-lg'></i>&nbsp;New"
+            button_css="btn-info"/>
+	</slot:template>
+</Modal>
 
-
+<Modal
+	modal_id="modalcrudstorage"
+	modal_size="modal-dialog-centered"
+	modal_title="Storage - {storage_warehouse_title+"  / "+sDataStorage}"
+    modal_footer_css="padding:5px;"
+	modal_footer={true}>
+	<slot:template slot="body">
+        <div class="mb-3">
+            <label for="exampleForm" class="form-label">CODE</label>
+            <div class="input-group mb-3">
+                {#if sDataStorage == "New"}
+                <span class="input-group-text" id="basic-addon1">{storage_warehouse_id}-</span>
+                {/if}
+                <input bind:value={storage_id_field}
+                    on:keyup={handleKeyboard_upppercase}
+                    class="required form-control"
+                    disabled={storage_flag_id}
+                    maxlength="10"
+                    type="text"
+                    placeholder="CODE"/>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="exampleForm" class="form-label">Name</label>
+            <Input bind:value={storage_name_field}
+                class="required"
+                type="text"
+                placeholder="Name"/>
+        </div>
+        <div class="mb-3">
+            <label for="exampleForm" class="form-label">Status</label>
+            <select
+                class="form-control required"
+                bind:value={storage_status_field}>
+                <option value="">--Please Select--</option>
+                <option value="Y">ACTIVE</option>
+                <option value="N">DEACTIVE</option>
+            </select>
+        </div>
+        {#if sDataStorage != "New"}
+            <div class="mb-3">
+                <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
+                    Create : {storage_create_field}<br />
+                    Update : {storage_update_field}
+                </div>
+            </div>
+        {/if}
+	</slot:template>
+	<slot:template slot="footer">
+        {#if flag_btnsave}
+        <Button on:click={() => {
+                handleSave_storage();
+            }} 
+            
+            button_title="<i class='bi bi-save'></i>&nbsp;&nbspSave"
+            button_css="btn-warning"/>
+        {/if}
+	</slot:template>
+</Modal>
