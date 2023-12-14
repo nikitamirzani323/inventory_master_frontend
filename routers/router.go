@@ -72,6 +72,7 @@ func Init() *fiber.App {
 	app.Post("/api/warehousestorage", controllers.WarehouseStorage)
 	app.Post("/api/warehousestoragesave", controllers.WarehouseStorageSave)
 	app.Post("/api/warehousestoragebin", controllers.WarehouseStorageBin)
+	app.Post("/api/warehousestoragebinsave", controllers.WarehouseStorageBinSave)
 
 	app.Post("/api/listpattern", controllers.Listpatternhome)
 	app.Post("/api/listpatternsave", controllers.ListpatternSave)

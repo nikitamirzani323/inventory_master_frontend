@@ -35,6 +35,8 @@
 
     //==STORAGE==
     let sDataStorage = "";
+    let searchStorage = "";
+    let filterStorage = [];
     let total_liststorage = 0;
     let liststorage = [];
     let storage_warehouse_id = "";
@@ -53,8 +55,11 @@
     let listbin = [];
     let bin_storage_id = "";
     let bin_flag_id = false;
-    let bin_id_field = "";
+    let bin_id_field = 0;
+    let bin_idstorage_field = "";
+    let bin_iduom_field = "";
     let bin_name_field = "";
+    let bin_maxcapacity_field = 0;
     let bin_status_field = "";
     let bin_create_field = "";
     let bin_update_field = "";
@@ -66,21 +71,7 @@
     let css_loader = "display: none;";
     let msgloader = "";
 
-    $: {
-        if (searchHome) {
-            filterHome = listHome.filter(
-                (item) =>
-                    item.home_id
-                        .toLowerCase()
-                        .includes(searchHome.toLowerCase()) || 
-                    item.home_name
-                        .toLowerCase()
-                        .includes(searchHome.toLowerCase())
-            );
-        } else {
-            filterHome = [...listHome];
-        }
-    }
+    
     
     const NewData = (e,id,idbranch,name,alamat,phone1,phone2,status,create,update) => {
         sData = e
@@ -112,6 +103,7 @@
     };
     const showStorageBin = (idstorage) => {
         bin_storage_id = idstorage
+        bin_idstorage_field = idstorage
         call_bin(idstorage)
         myModal_newentry = new bootstrap.Modal(document.getElementById("modalliststoragebin"));
         myModal_newentry.show();
@@ -132,16 +124,18 @@
         myModal_newentry.show();
         
     };
-    const call_formlistbin = (e,idstorage,nmstorage,statustorage,create,update) => {
+    const call_formlistbin = (e,idbin,iduom,nmbin,max,status,create,update) => {
         call_uom()
         sDataBin = e
         if(sDataBin == "Edit"){
             storage_flag_id = true;
-            storage_id_field = idstorage;
-            storage_name_field = nmstorage;
-            storage_status_field = statustorage;
-            storage_create_field = create;
-            storage_update_field = update;
+            bin_id_field = idbin;
+            bin_iduom_field = iduom;
+            bin_name_field = nmbin;
+            bin_maxcapacity_field = max;
+            bin_status_field = status;
+            bin_create_field = create;
+            bin_update_field = update;
         }
 
         myModal_newentry = new bootstrap.Modal(document.getElementById("modalcrudbin"));
@@ -322,6 +316,76 @@
             alert(msg)
         }
     }
+    async function handleSave_bin() {
+        let flag = true
+        let msg = ""
+        if(sDataBin == "New"){
+            if(bin_idstorage_field == ""){
+                flag = false
+                msg += "The Storage is required\n"
+            }
+            if(bin_name_field == ""){
+                flag = false
+                msg += "The Name is required\n"
+            }
+            if(bin_status_field == ""){
+                flag = false
+                msg += "The Status is required\n"
+            }
+        }else{
+            if(bin_name_field == ""){
+                flag = false
+                msg += "The Name is required\n"
+            }
+            if(bin_status_field == ""){
+                flag = false
+                msg += "The Status is required\n"
+            }
+        }
+        
+        if(flag){
+            flag_btnsave = false;
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            const res = await fetch("/api/warehousestoragebinsave", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    sdata: sDataBin,
+                    page:"CURR-SAVE",
+                    storagebin_id: parseInt(bin_id_field),
+                    storagebin_idstorage: bin_idstorage_field,
+                    storagebin_iduom: bin_iduom_field,
+                    storagebin_name: bin_name_field,
+                    storagebin_maxcapacity: parseFloat(bin_maxcapacity_field),
+                    storagebin_status: bin_status_field,
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                flag_btnsave = true;
+                if(sDataBin=="New"){
+                    clearField_bin()
+                }
+                msgloader = json.message;
+                call_bin(bin_idstorage_field)
+            } else if(json.status == 403){
+                flag_btnsave = true;
+                alert(json.message)
+            } else {
+                flag_btnsave = true;
+                msgloader = json.message;
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
     async function call_storage(idwarehouse) {
         liststorage = [];
         total_liststorage = 0;
@@ -340,15 +404,23 @@
             let record = json.record;
             if (record != null) {
                 let no = 0;
+                let css_totalbin = ""
                 total_liststorage = record.length;
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
+                    if(record[i]["warehousestorage_totalbin"] > 0){
+                        css_totalbin = "color:blue;";
+                    }else{
+                        css_totalbin = "color:red;";
+                    }
                     liststorage = [
                         ...liststorage,
                         {
                             warehousestorage_no: no,
                             warehousestorage_id: record[i]["warehousestorage_id"],
                             warehousestorage_name: record[i]["warehousestorage_name"],
+                            warehousestorage_totalbin: record[i]["warehousestorage_totalbin"],
+                            warehousestorage_totalbin_css: css_totalbin,
                             warehousestorage_status: record[i]["warehousestorage_status"],
                             warehousestorage_status_css: record[i]["warehousestorage_status_css"],
                             warehousestorage_create: record[i]["warehousestorage_create"],
@@ -377,19 +449,36 @@
             let record = json.record;
             if (record != null) {
                 let no = 0;
+                let css_maxcapacity = ""
+                let css_totalcapacity = ""
                 total_listbin = record.length;
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
+                    if(record[i]["warehousestoragebin_maxcapacity"] > 0){
+                        css_maxcapacity = "color:blue;";
+                    }else{
+                        css_maxcapacity = "color:red;";
+                    }
+                    if(record[i]["warehousestoragebin_totalcapacity"] > 0){
+                        css_totalcapacity = "color:blue;";
+                    }else{
+                        css_totalcapacity = "color:red;";
+                    }
                     listbin = [
                         ...listbin,
                         {
-                            warehousestorage_no: no,
-                            warehousestorage_id: record[i]["warehousestorage_id"],
-                            warehousestorage_name: record[i]["warehousestorage_name"],
-                            warehousestorage_status: record[i]["warehousestorage_status"],
-                            warehousestorage_status_css: record[i]["warehousestorage_status_css"],
-                            warehousestorage_create: record[i]["warehousestorage_create"],
-                            warehousestorage_update: record[i]["warehousestorage_update"],
+                            warehousestoragebin_no: no,
+                            warehousestoragebin_id: record[i]["warehousestoragebin_id"],
+                            warehousestoragebin_iduom: record[i]["warehousestoragebin_iduom"],
+                            warehousestoragebin_name: record[i]["warehousestoragebin_name"],
+                            warehousestoragebin_maxcapacity: record[i]["warehousestoragebin_maxcapacity"],
+                            warehousestoragebin_maxcapacity_css: css_maxcapacity,
+                            warehousestoragebin_totalcapacity: record[i]["warehousestoragebin_totalcapacity"],
+                            warehousestoragebin_totalcapacity_css: css_totalcapacity,
+                            warehousestoragebin_status: record[i]["warehousestoragebin_status"],
+                            warehousestoragebin_status_css: record[i]["warehousestoragebin_status_css"],
+                            warehousestoragebin_create: record[i]["warehousestoragebin_create"],
+                            warehousestoragebin_update: record[i]["warehousestoragebin_update"],
                         },
                     ];
                 }
@@ -441,12 +530,21 @@
     }
     function clearField_storage(){
         storage_flag_id = false;
-        sDataStorage = "";
         storage_id_field = "";
         storage_name_field = "";
         storage_status_field = "";
         storage_create_field = "";
         storage_update_field = "";
+    }
+    function clearField_bin(){
+        bin_id_field = 0;
+        bin_iduom_field = "";
+        bin_name_field = "";
+        bin_maxcapacity_field = 0;
+        bin_status_field = "";
+        bin_create_field = "";
+        bin_update_field = "";
+
     }
     function callFunction(event){
         switch(event.detail){
@@ -484,6 +582,33 @@
             result = "ACTIVE"
         }
         return result
+    }
+
+    $: {
+        if (searchHome) {
+            filterHome = listHome.filter(
+                (item) =>
+                    item.home_id
+                        .toLowerCase()
+                        .includes(searchHome.toLowerCase()) || 
+                    item.home_name
+                        .toLowerCase()
+                        .includes(searchHome.toLowerCase())
+            );
+        } else {
+            filterHome = [...listHome];
+        }
+
+        if (searchStorage) {
+            filterStorage = liststorage.filter(
+                (item) =>
+                    item.warehousestorage_name
+                        .toLowerCase()
+                        .includes(searchStorage.toLowerCase()) 
+            );
+        } else {
+            filterStorage = [...liststorage];
+        }
     }
 </script>
 <div id="loader" style="margin-left:50%;{css_loader}">
@@ -707,7 +832,16 @@
 	modal_title="STORAGE | {storage_warehouse_title}"
     modal_body_css="height:500px; overflow-y: scroll;"
     modal_footer_css="padding:5px;"
+    modal_search={true}
 	modal_footer={true}>
+    <slot:template slot="search">
+        <input
+            bind:value={searchStorage}
+            type="text"
+            class="form-control"
+            placeholder="Search Storage"
+            aria-label="Search"/>
+    </slot:template>
 	<slot:template slot="body">
         <table class="table table-striped ">
             <thead>
@@ -717,11 +851,12 @@
                     <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
                     <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CODE</th>
                     <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">STORAGE</th>
+                    <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TOTAL BIN</th>
                 </tr>
             </thead>
             {#if total_liststorage > 0}
                 <tbody>
-                    {#each liststorage as rec }
+                    {#each filterStorage as rec }
                         <tr>
                             <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                 <i on:click={() => {
@@ -743,6 +878,7 @@
                             </td>
                             <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_id}</td>
                             <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_name}</td>
+                            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.warehousestorage_totalbin_css}">{rec.warehousestorage_totalbin}</td>
                         </tr>
                     {/each}
                 </tbody>
@@ -842,7 +978,7 @@
 
 <Modal
 	modal_id="modalliststoragebin"
-	modal_size="modal-dialog-centered"
+	modal_size="modal-dialog-centered modal-lg"
 	modal_title="BIN | {bin_storage_id}"
     modal_body_css="height:500px; overflow-y: scroll;"
     modal_footer_css="padding:5px;"
@@ -854,8 +990,10 @@
                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;">&nbsp;</th>
                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                     <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
-                    <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CODE</th>
                     <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">BIN</th>
+                    <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UOM</th>
+                    <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">MAX CAPACITY</th>
+                    <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TOTAL CAPACITY</th>
                 </tr>
             </thead>
             {#if total_listbin > 0}
@@ -865,25 +1003,29 @@
                             <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                 <i on:click={() => {
                                         //e,idstorage,nmstorage,statustorage
-                                        call_formliststorage("Edit",rec.warehousestorage_id,rec.warehousestorage_name,rec.warehousestorage_status,
-                                        rec.warehousestorage_create,rec.warehousestorage_update);
+                                        // call_formlistbin = (e,idbin,iduom,nmbin,max,status,create,update)
+                                        call_formlistbin("Edit",rec.warehousestoragebin_id,rec.warehousestoragebin_iduom,rec.warehousestoragebin_name,
+                                        rec.warehousestoragebin_maxcapacity,rec.warehousestoragebin_status,
+                                        rec.warehousestoragebin_create,rec.warehousestoragebin_update);
                                     }} class="bi bi-pencil"></i>
                             </td>
-                            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_no}</td>
+                            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.warehousestoragebin_no}</td>
                             <td NOWRAP  style="text-align: center;vertical-align: top;font-size: 11px;">
-                                <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.warehousestorage_status_css}">
-                                    {status(rec.warehousestorage_status)}
+                                <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.warehousestoragebin_status_css}">
+                                    {status(rec.warehousestoragebin_status)}
                                 </span>
                             </td>
-                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_id}</td>
-                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestorage_name}</td>
+                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestoragebin_name}</td>
+                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.warehousestoragebin_iduom}</td>
+                            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.warehousestoragebin_maxcapacity_css}">{new Intl.NumberFormat().format(rec.warehousestoragebin_maxcapacity)}</td>
+                            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.warehousestoragebin_totalcapacity_css}">{new Intl.NumberFormat().format(rec.warehousestoragebin_totalcapacity)}</td>
                         </tr>
                     {/each}
                 </tbody>
             {:else}
                 <tbody>
                     <tr>
-                        <td colspan="6">
+                        <td colspan="20">
                             <center>
                                 <Loader />
                             </center>
@@ -914,7 +1056,7 @@
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Name</label>
                     <Input_custom
-                        bind:value={storage_name_field}
+                        bind:value={bin_name_field}
                         input_tipe="text_standart"
                         input_required="required"
                         input_maxlength="50"
@@ -924,7 +1066,7 @@
                     <label for="exampleForm" class="form-label">Status</label>
                     <select
                         class="form-control required"
-                        bind:value={storage_status_field}>
+                        bind:value={bin_status_field}>
                         <option value="">--Please Select--</option>
                         <option value="Y">ACTIVE</option>
                         <option value="N">DEACTIVE</option>
@@ -935,20 +1077,28 @@
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Uom</label>
                     <select
-                        on:change="{handleChangeBranchTable}"
-                        bind:value="{warehouse_idbranch_select}" 
+                        bind:value="{bin_iduom_field}" 
                         class="form-control required">
                         <option value="">--Please Select--</option>
                         {#each listuom as rec}
-                        <option value="{rec.uom_id}">{rec.uom_name}</option>
+                            <option value="{rec.uom_id}">{rec.uom_name}</option>
                         {/each}
                     </select>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Max Capacity</label>
+                    <Input_custom
+                        bind:value={bin_maxcapacity_field}
+                        input_tipe="number_standart"
+                        input_required="required"
+                        input_maxlength="10"
+                        input_placeholder="0"/>
                 </div>
                 {#if sDataBin != "New"}
                     <div class="mb-3">
                         <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
-                            Create : {storage_create_field}<br />
-                            Update : {storage_update_field}
+                            Create : {bin_create_field}<br />
+                            Update : {bin_update_field}
                         </div>
                     </div>
                 {/if}
@@ -961,7 +1111,7 @@
 	<slot:template slot="footer">
         {#if flag_btnsave}
         <Button on:click={() => {
-                handleSave_storage();
+                handleSave_bin();
             }} 
             
             button_title="<i class='bi bi-save'></i>&nbsp;&nbspSave"

@@ -334,3 +334,76 @@ func WarehouseStorageSave(c *fiber.Ctx) error {
 		})
 	}
 }
+func WarehouseStorageBinSave(c *fiber.Ctx) error {
+	type payload_warehousestoragebinsave struct {
+		Page                   string  `json:"page"`
+		Sdata                  string  `json:"sdata" `
+		Storagebin_id          int     `json:"storagebin_id" `
+		Storagebin_idstorage   string  `json:"storagebin_idstorage" `
+		Storagebin_iduom       string  `json:"storagebin_iduom" `
+		Storagebin_name        string  `json:"storagebin_name" `
+		Storagebin_maxcapacity float32 `json:"storagebin_maxcapacity" `
+		Storagebin_status      string  `json:"storagebin_status" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_warehousestoragebinsave)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname":        hostname,
+			"page":                   client.Page,
+			"sdata":                  client.Sdata,
+			"storagebin_id":          client.Storagebin_id,
+			"storagebin_idstorage":   client.Storagebin_idstorage,
+			"storagebin_iduom":       client.Storagebin_iduom,
+			"storagebin_name":        client.Storagebin_name,
+			"storagebin_maxcapacity": client.Storagebin_maxcapacity,
+			"storagebin_status":      client.Storagebin_status,
+		}).
+		Post(PATH + "api/warehousestoragebinsave")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+}
