@@ -215,7 +215,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Uom"
+                            placeholder="Search Category Item"
                             aria-label="Search"/>
                     </div>
                 </slot:template>
