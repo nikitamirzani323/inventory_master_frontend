@@ -51,13 +51,9 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
-                                <a class="dropdown-item" use:link href="/company" style="font-size: 13px;">COMPANY</a>
-                                <a class="dropdown-item" use:link href="/companyadmin" style="font-size: 13px;">COMPANY ADMIN</a>
-                                <a class="dropdown-item" use:link href="/companyadminrule" style="font-size: 13px;">COMPANY ADMINRULE</a>
-                                <a class="dropdown-item" use:link href="/listpoint" style="font-size: 13px;">LISTPOINT MANAGEMENT</a>
-                                <a class="dropdown-item" use:link href="/listbet" style="font-size: 13px;">LISTBET MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/currency" style="font-size: 13px;">CURRENCY MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listuom" style="font-size: 13px;">UOM MANAGEMENT</a>
+                                <a class="dropdown-item" use:link href="/categoryitem" style="font-size: 13px;">CATEGORY ITEM</a>
                                 <a class="dropdown-item" use:link href="/listbranch" style="font-size: 13px;">BRANCH MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listwarehouse" style="font-size: 13px;">WAREHOUSE MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/admin" style="font-size: 13px;">ADMIN MANAGEMENT</a>

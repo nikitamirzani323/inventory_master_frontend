@@ -11,6 +11,7 @@
 	import Uom from "./pages/uom/Uom.svelte";
 	import Branch from "./pages/branch/Branch.svelte";
 	import Warehouse from "./pages/warehouse/Warehouse.svelte";
+	import Categoryitem from "./pages/categoryitem/Categoryitem.svelte";
 	import Company from "./pages/company/Company.svelte";
 	import Companyadmin from "./pages/companyadmin/Companyadmin.svelte";
 	import Companyadminrule from "./pages/companyadminrule/Companyadminrule.svelte";
@@ -40,6 +41,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/categoryitem": wrap({
+				component: Categoryitem,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/listuom": wrap({
 				component: Uom,
