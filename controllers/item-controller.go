@@ -153,7 +153,64 @@ func Itemhome(c *fiber.Ctx) error {
 		})
 	}
 }
+func Itemuom(c *fiber.Ctx) error {
+	type payload_itemuom struct {
+		Item_id string `json:"item_id" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_itemuom)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
 
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"item_id": client.Item_id,
+		}).
+		Post(PATH + "api/itemuom")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+}
 func CateitemSave(c *fiber.Ctx) error {
 	type payload_cateitemsave struct {
 		Page            string `json:"page"`
@@ -236,6 +293,7 @@ func ItemSave(c *fiber.Ctx) error {
 		Item_iduom      string `json:"item_iduom" `
 		Item_name       string `json:"item_name" `
 		Item_descp      string `json:"item_descp" `
+		Item_urlimg     string `json:"item_urlimg" `
 		Item_inventory  string `json:"item_inventory" `
 		Item_sales      string `json:"item_sales" `
 		Item_purchase   string `json:"item_purchase" `
@@ -273,12 +331,155 @@ func ItemSave(c *fiber.Ctx) error {
 			"item_iduom":      client.Item_iduom,
 			"item_name":       client.Item_name,
 			"item_descp":      client.Item_descp,
+			"item_urlimg":     client.Item_urlimg,
 			"item_inventory":  client.Item_inventory,
 			"item_sales":      client.Item_sales,
 			"item_purchase":   client.Item_purchase,
 			"item_status":     client.Item_status,
 		}).
 		Post(PATH + "api/itemsave")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+}
+func ItemuomSave(c *fiber.Ctx) error {
+	type payload_itemuomsave struct {
+		Page               string  `json:"page"`
+		Sdata              string  `json:"sdata" `
+		Itemuom_search     string  `json:"itemuom_search" `
+		Itemuom_page       int     `json:"itemuom_page" `
+		Itemuom_id         int     `json:"itemuom_id" `
+		Itemuom_iditem     string  `json:"itemuom_iditem" `
+		Itemuom_iduom      string  `json:"itemuom_iduom" `
+		Itemuom_default    string  `json:"itemuom_default" `
+		Itemuom_conversion float32 `json:"itemuom_conversion" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_itemuomsave)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname":    hostname,
+			"page":               client.Page,
+			"sdata":              client.Sdata,
+			"itemuom_search":     client.Itemuom_search,
+			"itemuom_page":       client.Itemuom_page,
+			"itemuom_id":         client.Itemuom_id,
+			"itemuom_iditem":     client.Itemuom_iditem,
+			"itemuom_iduom":      client.Itemuom_iduom,
+			"itemuom_default":    client.Itemuom_default,
+			"itemuom_conversion": client.Itemuom_conversion,
+		}).
+		Post(PATH + "api/itemuomsave")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+}
+func ItemuomDelete(c *fiber.Ctx) error {
+	type payload_itemuomdelete struct {
+		Page           string `json:"page"`
+		Itemuom_search string `json:"itemuom_search" `
+		Itemuom_page   int    `json:"itemuom_page" `
+		Itemuom_id     int    `json:"itemuom_id" `
+		Itemuom_iditem string `json:"itemuom_iditem" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_itemuomdelete)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"itemuom_search":  client.Itemuom_search,
+			"itemuom_page":    client.Itemuom_page,
+			"Itemuom_id":      client.Itemuom_id,
+			"itemuom_iditem":  client.Itemuom_iditem,
+		}).
+		Post(PATH + "api/itemuomdelete")
 	if err != nil {
 		log.Println(err.Error())
 	}
