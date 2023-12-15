@@ -12,6 +12,7 @@
 	import Branch from "./pages/branch/Branch.svelte";
 	import Warehouse from "./pages/warehouse/Warehouse.svelte";
 	import Categoryitem from "./pages/categoryitem/Categoryitem.svelte";
+	import Item from "./pages/item/Item.svelte";
 	import Company from "./pages/company/Company.svelte";
 	import Companyadmin from "./pages/companyadmin/Companyadmin.svelte";
 	import Companyadminrule from "./pages/companyadminrule/Companyadminrule.svelte";
@@ -41,6 +42,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/item": wrap({
+				component: Item,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/categoryitem": wrap({
 				component: Categoryitem,

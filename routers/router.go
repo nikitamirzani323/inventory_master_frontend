@@ -75,6 +75,8 @@ func Init() *fiber.App {
 	app.Post("/api/warehousestoragebinsave", controllers.WarehouseStorageBinSave)
 	app.Post("/api/categoryitem", controllers.Cateitemhome)
 	app.Post("/api/categoryitemsave", controllers.CateitemSave)
+	app.Post("/api/item", controllers.Itemhome)
+	app.Post("/api/itemsave", controllers.ItemSave)
 
 	return app
 }

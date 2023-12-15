@@ -53,7 +53,8 @@
                             <li>
                                 <a class="dropdown-item" use:link href="/currency" style="font-size: 13px;">CURRENCY MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listuom" style="font-size: 13px;">UOM MANAGEMENT</a>
-                                <a class="dropdown-item" use:link href="/categoryitem" style="font-size: 13px;">CATEGORY ITEM</a>
+                                <a class="dropdown-item" use:link href="/categoryitem" style="font-size: 13px;">CATEGORY ITEM MANAGEMENT</a>
+                                <a class="dropdown-item" use:link href="/item" style="font-size: 13px;">ITEM MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listbranch" style="font-size: 13px;">BRANCH MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listwarehouse" style="font-size: 13px;">WAREHOUSE MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/admin" style="font-size: 13px;">ADMIN MANAGEMENT</a>
