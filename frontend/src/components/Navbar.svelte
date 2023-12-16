@@ -32,21 +32,6 @@
                             role="button"
                             data-bs-toggle="dropdown"
                             aria-expanded="false" style="font-size: 13px;">
-                            PATTERN
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li>
-                                <a class="dropdown-item" use:link href="/pattern" style="font-size: 13px;">PATTERN</a>
-                                <a class="dropdown-item" use:link href="/listpattern" style="font-size: 13px;">LIST PATTERN</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle"
-                            id="navbarDropdown"
-                            role="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false" style="font-size: 13px;">
                             MASTER
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">

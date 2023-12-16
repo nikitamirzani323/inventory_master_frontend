@@ -89,7 +89,9 @@ func VendorSave(c *fiber.Ctx) error {
 		Vendor_page   int    `json:"vendor_page" `
 		Vendor_id     string `json:"vendor_id" `
 		Vendor_name   string `json:"vendor_name" `
+		Vendor_pic    string `json:"vendor_pic" `
 		Vendor_alamat string `json:"vendor_alamat" `
+		Vendor_email  string `json:"vendor_email" `
 		Vendor_phone1 string `json:"vendor_phone1" `
 		Vendor_phone2 string `json:"vendor_phone2" `
 		Vendor_status string `json:"vendor_status" `
@@ -123,7 +125,9 @@ func VendorSave(c *fiber.Ctx) error {
 			"vendor_page":     client.Vendor_page,
 			"vendor_id":       client.Vendor_id,
 			"vendor_name":     client.Vendor_name,
+			"vendor_pic":      client.Vendor_pic,
 			"vendor_alamat":   client.Vendor_alamat,
+			"vendor_email":    client.Vendor_email,
 			"vendor_phone1":   client.Vendor_phone1,
 			"vendor_phone2":   client.Vendor_phone2,
 			"vendor_status":   client.Vendor_status,

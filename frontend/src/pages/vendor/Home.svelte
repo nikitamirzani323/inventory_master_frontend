@@ -12,7 +12,6 @@
 	export let token = ""
 	export let listHome = []
     export let listPage = [];
-    export let listCateitem = [];
 	export let totalrecord = 0
     let dispatch = createEventDispatcher();
 	let title_page = "VENDOR"
@@ -20,14 +19,12 @@
     let myModal_newentry = "";
     let flag_id_field = false;
     let flag_btnsave = true;
-    let idcateitem_field = "";
-    let iduom_field = "";
     let name_field = "";
-    let descp_field = "";
-    let urlimg_field = "";
-    let inventory_field = false;
-    let sales_field = false;
-    let purchase_field = false;
+    let pic_field = "";
+    let alamat_field = "";
+    let email_field = "";
+    let phone1_field = "";
+    let phone2_field = "";
     let status_field = "";
     let create_field = "";
     let update_field = "";
@@ -35,23 +32,6 @@
     let pagingnow = 0;
     let searchHome = "";
     let filterHome = [];
-    let listuom = [];
-    
-    //==ITEMUOM===
-    let sDataItemUom = "";
-    let list_itemuom = [];
-    let total_itemuom = 0;
-    let id_itemuom = 0;
-    let iduom_itemuom = "";
-    let iduom_flag_itemuom = false;
-    let iduomdefault_itemuom = "";
-    let iditem_itemuom = "";
-    let default_itemuom = "N";
-    let convertion_itemuom = 1;
-    let create_itemuom = "";
-    let update_itemuom = "";
-
-
     let css_loader = "display: none;";
     let msgloader = "";
 
@@ -71,52 +51,27 @@
         }
     }
     
-    const NewData = (e,id,idcateitem,nmitem,descp,urlimg,status,purchase,sales,inventory,create,update) => {
+    const NewData = (e,id,name,pic,alamat,email,phone1,phone2,status,create,update) => {
         sData = e
         if(sData == "New"){
-            call_uom()
             clearField()
-            myModal_newentry = new bootstrap.Modal(document.getElementById("modalentrycrud"));
-            myModal_newentry.show();
         }else{
-            call_itemuom(id)
             flag_id_field = true;
             idrecord = id
-            idcateitem_field = idcateitem;
-            name_field = nmitem;
-            descp_field = descp;
-            urlimg_field = urlimg;
-            inventory_field = inventory=="Y"?true:false;
-            sales_field = sales=="Y"?true:false;
-            purchase_field = purchase=="Y"?true:false;
+            name_field = name;
+            pic_field = pic;
+            alamat_field = alamat;
+            email_field = email;
+            phone1_field = phone1;
+            phone2_field = phone2;
             status_field = status;
             create_field = create;
             update_field = update;
-            myModal_newentry = new bootstrap.Modal(document.getElementById("modalentrycrudedit"));
-            myModal_newentry.show();
         }
-    };
-    const NewItemUom = (e,id,iduom,default_uom,convertion,create,update) => {
-        sDataItemUom = e
-        call_uom()
-        if(sDataItemUom == "Edit"){
-            iduom_flag_itemuom = true;
-            id_itemuom = id;
-            iduom_itemuom = iduom;
-            default_itemuom = default_uom;
-            convertion_itemuom = parseFloat(convertion);
-            create_itemuom = create;
-            update_itemuom = update;
-        }else{
-            clearField_iteuom()
-        }
-        
-
-
-        myModal_newentry = new bootstrap.Modal(document.getElementById("modalcruditemuom"));
+        myModal_newentry = new bootstrap.Modal(document.getElementById("modalentrycrud"));
         myModal_newentry.show();
-        
     };
+   
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
     };
@@ -125,30 +80,38 @@
         let msg = ""
         
         if(sData == "New"){
-            if(idcateitem_field == ""){
-                flag = false
-                msg += "The Category is required\n"
-            }
-            if(iduom_field == ""){
-                flag = false
-                msg += "The UOM is required\n"
-            }
             if(name_field == ""){
                 flag = false
                 msg += "The Name is required\n"
+            }
+            if(pic_field == ""){
+                flag = false
+                msg += "The Pic is required\n"
+            }
+            if(phone1_field == ""){
+                flag = false
+                msg += "The Phone 1 is required\n"
             }
             if(status_field == ""){
                 flag = false
                 msg += "The Status is required\n"
             }
         }else{
-            if(idcateitem_field == ""){
+            if(idrecord == ""){
                 flag = false
-                msg += "The Category is required\n"
+                msg += "The Code is required\n"
             }
             if(name_field == ""){
                 flag = false
                 msg += "The Name is required\n"
+            }
+            if(pic_field == ""){
+                flag = false
+                msg += "The Pic is required\n"
+            }
+            if(phone1_field == ""){
+                flag = false
+                msg += "The Phone 1 is required\n"
             }
             if(status_field == ""){
                 flag = false
@@ -157,25 +120,10 @@
         }
         
         if(flag){
-            if(inventory_field){
-                inventory_field = "Y"
-            }else{
-                inventory_field = "N"
-            }
-            if(sales_field){
-                sales_field = "Y"
-            }else{
-                sales_field = "N"
-            }
-            if(purchase_field){
-                purchase_field = "Y"
-            }else{
-                purchase_field = "N"
-            }
             flag_btnsave = false;
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
-            const res = await fetch("/api/itemsave", {
+            const res = await fetch("/api/vendorsave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -184,18 +132,16 @@
                 body: JSON.stringify({
                     sdata: sData,
                     page:"CURR-SAVE",
-                    item_search: searchHome,
-                    item_page: parseInt(pagingnow),
-                    item_id: idrecord,
-                    item_idcateitem: idcateitem_field,
-                    item_iduom: iduom_field,
-                    item_name: name_field,
-                    item_descp: descp_field,
-                    item_urlimg: urlimg_field,
-                    item_inventory: inventory_field,
-                    item_sales: sales_field,
-                    item_purchase: purchase_field,
-                    item_status: status_field,
+                    vendor_search: searchHome,
+                    vendor_page: parseInt(pagingnow),
+                    vendor_id: idrecord,
+                    vendor_name: name_field,
+                    vendor_pic: pic_field,
+                    vendor_alamat: alamat_field,
+                    vendor_email: email_field,
+                    vendor_phone1: phone1_field,
+                    vendor_phone2: phone2_field,
+                    vendor_status: status_field,
                 }),
             });
             const json = await res.json();
@@ -203,22 +149,6 @@
                 flag_btnsave = true;
                 if(sData=="New"){
                     clearField()
-                }else{
-                    if(inventory_field == "Y"){
-                        inventory_field = true
-                    }else{
-                        inventory_field = false
-                    }
-                    if(sales_field== "Y"){
-                        sales_field = true
-                    }else{
-                        sales_field = false
-                    }
-                    if(purchase_field== "Y"){
-                        purchase_field = true
-                    }else{
-                        purchase_field = false
-                    }
                 }
                 msgloader = json.message;
                 RefreshHalaman()
@@ -234,233 +164,21 @@
             }, 1000);
         }else{
             alert(msg)
-        }
-    }
-    async function handleSave_itemuom() {
-        let flag = true
-        let msg = ""
-        
-        if(sDataItemUom == "New"){
-            if(iditem_itemuom == ""){
-                flag = false
-                msg += "The Item is required\n"
-            }
-            if(iduom_itemuom == ""){
-                flag = false
-                msg += "The UOM is required\n"
-            }
-           
-            if(parseFloat(convertion_itemuom) <= 0){
-                flag = false
-                msg += "The Convertion must be greater than 0\n"
-            }
-        }else{
-            if(iditem_itemuom == ""){
-                flag = false
-                msg += "The Item is required\n"
-            }
-            if(iduom_itemuom == ""){
-                flag = false
-                msg += "The UOM is required\n"
-            }
-           
-            if(parseFloat(convertion_itemuom) <= 0){
-                flag = false
-                msg += "The Convertion must be greater than 0\n"
-            }
-        }
-        
-        if(flag){
-            flag_btnsave = false;
-            css_loader = "display: inline-block;";
-            msgloader = "Sending...";
-            const res = await fetch("/api/itemuomsave", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
-                body: JSON.stringify({
-                    sdata: sDataItemUom,
-                    page:"CURR-SAVE",
-                    itemuom_search: searchHome,
-                    itemuom_page: parseInt(pagingnow),
-                    itemuom_id: parseInt(id_itemuom),
-                    itemuom_iditem: iditem_itemuom,
-                    itemuom_iduom: iduom_itemuom,
-                    itemuom_default: default_itemuom,
-                    itemuom_conversion: parseFloat(convertion_itemuom),
-                }),
-            });
-            const json = await res.json();
-            if (json.status == 200) {
-                flag_btnsave = true;
-                if(sDataItemUom=="New"){
-                    clearField_iteuom()
-                }
-                call_itemuom(iditem_itemuom)
-                msgloader = json.message;
-                RefreshHalaman()
-            } else if(json.status == 403){
-                flag_btnsave = true;
-                alert(json.message)
-            } else {
-                flag_btnsave = true;
-                msgloader = json.message;
-            }
-            setTimeout(function () {
-                css_loader = "display: none;";
-            }, 1000);
-        }else{
-            alert(msg)
-        }
-    }
-    async function handleDelete_itemuom(iditemuom) {
-        let flag = true
-        let msg = ""
-        
-        if(iditemuom == ""){
-            flag = false
-            msg += "The Item is required\n"
-        }
-        if(iditem_itemuom == ""){
-            flag = false
-            msg += "The item is required\n"
-        }
-        
-        if(flag){
-            flag_btnsave = false;
-            css_loader = "display: inline-block;";
-            msgloader = "Sending...";
-            const res = await fetch("/api/itemuomdelete", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
-                body: JSON.stringify({
-                    page:"CURR-SAVE",
-                    itemuom_search: searchHome,
-                    itemuom_page: parseInt(pagingnow),
-                    itemuom_id: parseInt(iditemuom),
-                    itemuom_iditem: iditem_itemuom,
-                }),
-            });
-            const json = await res.json();
-            if (json.status == 200) {
-                flag_btnsave = true;
-                call_itemuom(iditem_itemuom)
-                msgloader = json.message;
-                RefreshHalaman()
-            } else if(json.status == 403){
-                flag_btnsave = true;
-                alert(json.message)
-            } else {
-                flag_btnsave = true;
-                msgloader = json.message;
-            }
-            setTimeout(function () {
-                css_loader = "display: none;";
-            }, 1000);
-        }else{
-            alert(msg)
-        }
-    }
-    async function call_uom() {
-        listuom = [];
-        const res = await fetch("/api/uomshare", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify({
-            }),
-        });
-        const json = await res.json();
-        if (json.status == 200) {
-            let record = json.record;
-            if (record != null) {
-                let no = 0;
-                for (var i = 0; i < record.length; i++) {
-                    no = no + 1;
-                    listuom = [
-                        ...listuom,
-                        {
-                            uom_id: record[i]["uom_id"],
-                            uom_name: record[i]["uom_name"],
-                        },
-                    ];
-                }
-            }
-        }
-    }
-    async function call_itemuom(iditem) {
-        list_itemuom = [];
-        iditem_itemuom = iditem;
-        const res = await fetch("/api/itemuom", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify({
-                item_id: iditem,
-            }),
-        });
-        const json = await res.json();
-        if (json.status == 200) {
-            let record = json.record;
-            if (record != null) {
-                let no = 0;
-                total_itemuom = record.length;
-                for (var i = 0; i < record.length; i++) {
-                    no = no + 1;
-                    
-                    if(record[i]["itemuom_default"] == "Y"){
-                        iduomdefault_itemuom = record[i]["itemuom_iduom"]
-                    }
-                    list_itemuom = [
-                        ...list_itemuom,
-                        {
-                            itemuom_no: no,
-                            itemuom_id: record[i]["itemuom_id"],
-                            itemuom_iduom: record[i]["itemuom_iduom"],
-                            itemuom_nmuom: record[i]["itemuom_nmuom"],
-                            itemuom_default: record[i]["itemuom_default"],
-                            itemuom_default_css: record[i]["itemuom_default_css"],
-                            itemuom_conversion: record[i]["itemuom_conversion"],
-                            itemuom_create: record[i]["itemuom_create"],
-                            itemuom_update: record[i]["itemuom_update"],
-                        },
-                    ];
-                }
-            }
         }
     }
     function clearField(){
         idrecord = "";
-        idcateitem_field = "";
-        iduom_field = "";
         name_field = "";
-        descp_field = "";
-        urlimg_field = "";
-        inventory_field = false;
-        sales_field = false;
-        purchase_field = false;
+        pic_field = "";
+        alamat_field = "";
+        email_field = "";
+        phone1_field = "";
+        phone2_field = "";
         status_field = "";
         create_field = "";
         update_field = "";
     }
-    function clearField_iteuom(){
-        id_itemuom = 0;
-        iduom_flag_itemuom = false;
-        iduom_itemuom = "";
-        default_itemuom = "N";
-        convertion_itemuom = 1;
-        create_itemuom = "";
-        update_itemuom = "";
-    }
+  
     function callFunction(event){
         switch(event.detail){
             case "NEW":
@@ -538,7 +256,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Code, Item"
+                            placeholder="Search Code, Vendor"
                             aria-label="Search"/>
                     </div>
                 </slot:template>
@@ -550,12 +268,9 @@
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                                 <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CODE</th>
-                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CATEGORY ITEM</th>
-                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">ITEM</th>
-                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEFAULT UOM</th>
-                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PURCHASE</th>
-                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">SALES</th>
-                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">INVENTORY</th>
+                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VENDOR</th>
+                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PIC</th>
+                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
                             </tr>
                         </thead>
                         {#if totalrecord > 0}
@@ -564,10 +279,9 @@
                                 <tr>
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i on:click={() => {
-                                            //e,id,idcateitem,nmitem,descp,status,purchase,sales,inventory,create,update
-                                                NewData("Edit",rec.home_id, rec.home_idcateitem,
-                                                rec.home_name,rec.home_descp,rec.home_urlimg,rec.home_status,
-                                                rec.home_purchase,rec.home_sales,rec.home_inventory,
+                                            //e,id,name,pic,alamat,email,phone1,phone2,status,create,update
+                                                NewData("Edit",rec.home_id, rec.home_name,
+                                                rec.home_pic,rec.home_alamat,rec.home_email,rec.home_phone1,rec.home_phone2,rec.home_status,
                                                 rec.home_create, rec.home_update);
                                             }} class="bi bi-pencil"></i>
                                     </td>
@@ -578,24 +292,9 @@
                                         </span>
                                     </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmcateitem}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_iduom}</td>
-                                    <td  style="text-align: center;vertical-align: top;font-size: {table_body_font};">
-                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.home_purchase_css}">
-                                            {rec.home_purchase}
-                                        </span>
-                                    </td>
-                                    <td  style="text-align: center;vertical-align: top;font-size: {table_body_font};">
-                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.home_sales_css}">
-                                            {rec.home_sales}
-                                        </span>
-                                    </td>
-                                    <td  style="text-align: center;vertical-align: top;font-size: {table_body_font};">
-                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.home_inventory_css}">
-                                            {rec.home_inventory}
-                                        </span>
-                                    </td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_pic}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_phone1} / {rec.home_phone2}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -627,30 +326,6 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Category Item</label>
-                    <select
-                        bind:value="{idcateitem_field}" 
-                        class="required form-control ">
-                        <option value="">--Please Select--</option>
-                        {#each listCateitem as rec}
-                        <option value="{rec.cateitem_id}">{rec.cateitem_name}</option>
-                        {/each}
-                    </select>
-                </div>
-                {#if sData == "New"}
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Default Uom</label>
-                    <select
-                        bind:value="{iduom_field}" 
-                        class="form-control required">
-                        <option value="">--Please Select--</option>
-                        {#each listuom as rec}
-                            <option value="{rec.uom_id}">{rec.uom_name}</option>
-                        {/each}
-                    </select>
-                </div>
-                {/if}
-                <div class="mb-3">
                     <label for="exampleForm" class="form-label">Name</label>
                     <Input_custom
                         bind:value={name_field}
@@ -660,47 +335,48 @@
                         input_placeholder="Name"/>
                 </div>
                 <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Description</label>
+                    <label for="exampleForm" class="form-label">Pic</label>
+                    <Input_custom
+                        bind:value={pic_field}
+                        input_tipe="text_standart"
+                        input_required="required"
+                        input_maxlength="50"
+                        input_placeholder="Pic"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Alamat</label>
                     <textarea 
-                        style="height: 100px;resize: none;" bind:value={descp_field} class="form-control "/>
+                        style="height: 100px;resize: none;" 
+                        bind:value={alamat_field} class="form-control "/>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="form-check">
-                    <input 
-                        bind:checked={purchase_field}
-                        class="form-check-input" 
-                        type="checkbox" value="" id="flexCheckChecked" >
-                    <label class="form-check-label" for="flexCheckDefault">
-                        Purchase
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input 
-                        bind:checked={sales_field}
-                        class="form-check-input" 
-                        type="checkbox" value="" id="flexCheckChecked" >
-                    <label class="form-check-label" for="flexCheckChecked">
-                      Sales
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input 
-                        bind:checked={inventory_field}
-                        class="form-check-input" 
-                        type="checkbox" value="" id="flexCheckChecked" >
-                    <label class="form-check-label" for="flexCheckChecked">
-                      Inventory
-                    </label>
-                </div>
                 <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Url Image</label>
+                    <label for="exampleForm" class="form-label">Email</label>
                     <Input_custom
-                        bind:value={urlimg_field}
+                        bind:value={email_field}
                         input_tipe="text_standart"
                         input_required=""
-                        input_maxlength="500"
-                        input_placeholder="Url Image"/>
+                        input_maxlength="70"
+                        input_placeholder="Email"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Phone 1</label>
+                    <Input_custom
+                        bind:value={phone1_field}
+                        input_tipe="text_standart"
+                        input_required="required"
+                        input_maxlength="20"
+                        input_placeholder="Phone 1"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Phone 2</label>
+                    <Input_custom
+                        bind:value={phone2_field}
+                        input_tipe="text_standart"
+                        input_required=""
+                        input_maxlength="20"
+                        input_placeholder="Phone 2"/>
                 </div>
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Status</label>
@@ -737,244 +413,3 @@
 	</slot:template>
 </Modal>
 
-<Modal
-	modal_id="modalentrycrudedit"
-	modal_size="modal-dialog-centered modal-lg"
-	modal_title="{title_page+"/"+sData}"
-    modal_footer_css="padding:5px;"
-	modal_footer={false}>
-	<slot:template slot="body">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Category Item</label>
-                    <select
-                        bind:value="{idcateitem_field}" 
-                        class="required form-control ">
-                        <option value="">--Please Select--</option>
-                        {#each listCateitem as rec}
-                        <option value="{rec.cateitem_id}">{rec.cateitem_name}</option>
-                        {/each}
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Name</label>
-                    <Input_custom
-                        bind:value={name_field}
-                        input_tipe="text_standart"
-                        input_required="required"
-                        input_maxlength="50"
-                        input_placeholder="Name"/>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Description</label>
-                    <textarea 
-                        style="height: 100px;resize: none;" bind:value={descp_field} class="form-control "/>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-check">
-                    <input 
-                        bind:checked={purchase_field}
-                        class="form-check-input" 
-                        type="checkbox" value="" id="flexCheckChecked" >
-                    <label class="form-check-label" for="flexCheckDefault">
-                        Purchase
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input 
-                        bind:checked={sales_field}
-                        class="form-check-input" 
-                        type="checkbox" value="" id="flexCheckChecked" >
-                    <label class="form-check-label" for="flexCheckChecked">
-                      Sales
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input 
-                        bind:checked={inventory_field}
-                        class="form-check-input" 
-                        type="checkbox" value="" id="flexCheckChecked" >
-                    <label class="form-check-label" for="flexCheckChecked">
-                      Inventory
-                    </label>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Url Image</label>
-                    <Input_custom
-                        bind:value={urlimg_field}
-                        input_tipe="text_standart"
-                        input_required=""
-                        input_maxlength="500"
-                        input_placeholder="Url Image"/>
-                </div>
-                <div class="mb-3">
-                    <img width="100" src="{urlimg_field}" alt="">
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Status</label>
-                    <select
-                        class="form-control required"
-                        bind:value={status_field}>
-                        <option value="">--Please Select--</option>
-                        <option value="Y">ACTIVE</option>
-                        <option value="N">DEACTIVE</option>
-                    </select>
-                </div>
-                {#if sData != "New"}
-                <div class="mb-3">
-                    <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
-                        Create : {create_field}<br />
-                        Update : {update_field}
-                    </div>
-                </div>
-                {/if}
-                <div class="mb-3">
-                    <div class="float-end">
-                        {#if flag_btnsave}
-                            <Button on:click={() => {
-                                    handleSave();
-                                }} 
-                                button_function="SAVE"
-                                button_title="<i class='bi bi-save'></i>&nbsp;&nbsp;Save"
-                                button_css="btn-warning"/>
-                        {/if}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="accordion" id="accordionExample">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Setting Uom
-                    </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        <div class="float-end">
-                            <Button on:click={() => {
-                                    NewItemUom("New",iditem_itemuom);
-                                }} 
-                                button_function=""
-                                button_title="<i class='bi bi-plus-lg'></i>&nbsp;New Uom"
-                                button_css="btn-dark"/>
-                        </div>
-                        <table class="table table-striped ">
-                            <thead>
-                                <tr>
-                                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan=2>&nbsp;</th>
-                                    <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEFAULT</th>
-                                    <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UOM</th>
-                                    <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CONVERTION</th>
-                                </tr>
-                            </thead>
-                            {#if total_itemuom > 0}
-                                <tbody>
-                                    {#each list_itemuom as rec }
-                                        <tr>
-                                            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
-                                                <i on:click={() => {
-                                                        //e,idstorage,nmstorage,statustorage
-                                                        handleDelete_itemuom(rec.itemuom_id);
-                                                    }} class="bi bi-trash"></i>
-                                            </td>
-                                            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
-                                                <i on:click={() => {
-                                                        //e,idstorage,nmstorage,statustorage
-                                                        NewItemUom("Edit",rec.itemuom_id,rec.itemuom_iduom,rec.itemuom_default,rec.itemuom_conversion,
-                                                        rec.itemuom_create,rec.itemuom_update);
-                                                    }} class="bi bi-pencil"></i>
-                                            </td>
-                                            <td NOWRAP  style="text-align: center;vertical-align: top;font-size: 11px;">
-                                                <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.itemuom_default_css}">
-                                                    {rec.itemuom_default}
-                                                </span>
-                                            </td>
-                                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.itemuom_nmuom}</td>
-                                            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{rec.itemuom_conversion} {iduomdefault_itemuom}</td>
-                                        </tr>
-                                    {/each}
-                                </tbody>
-                            {:else}
-                                <tbody>
-                                    <tr>
-                                        <td colspan="6">
-                                            <center>
-                                                <Loader />
-                                            </center>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            {/if}
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-	</slot:template>
-	<slot:template slot="footer">
-        
-	</slot:template>
-</Modal>
-
-<Modal
-	modal_id="modalcruditemuom"
-	modal_size="modal-dialog-centered"
-	modal_title="Uom - {iditem_itemuom}"
-    modal_footer_css="padding:5px;"
-	modal_footer={true}>
-	<slot:template slot="body">
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Uom</label>
-            <select
-                bind:value="{iduom_itemuom}" 
-                disabled={iduom_flag_itemuom}
-                class="form-control required">
-                <option value="">--Please Select--</option>
-                {#each listuom as rec}
-                    <option value="{rec.uom_id}">{rec.uom_name}</option>
-                {/each}
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Convertion</label>
-            <Input_custom
-                bind:value={convertion_itemuom}
-                input_tipe="number_standart"
-                input_required="required"
-                input_maxlength="10"
-                input_placeholder="0"/>
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Default Uom</label>
-            <select
-                class="form-control required"
-                bind:value={default_itemuom}>
-                <option value="N">--Please Select--</option>
-                <option value="Y">Y</option>
-            </select>
-        </div>
-        {#if sDataItemUom != "New"}
-        <div class="mb-3">
-            <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
-                Create : {create_itemuom}<br />
-                Update : {update_itemuom}
-            </div>
-        </div>
-        {/if}
-       
-	</slot:template>
-	<slot:template slot="footer">
-        {#if flag_btnsave}
-        <Button on:click={() => {
-                handleSave_itemuom();
-            }} 
-            
-            button_title="<i class='bi bi-save'></i>&nbsp;&nbspSave"
-            button_css="btn-warning"/>
-        {/if}
-	</slot:template>
-</Modal>

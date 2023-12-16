@@ -9,7 +9,6 @@
     let akses_page = false;
     let listHome = [];
     let listPage = [];
-    let listCateitem = [];
     let search = "";
     let record = "";
     let record_message = "";
@@ -56,7 +55,6 @@
         const json = await res.json();
         if (json.status == 200) {
             record = json.record;
-            let record_listcateitem = json.listcateitem;
             record_message = json.message;
             perpage = json.perpage;
             totalrecordall = json.totalrecord;
@@ -70,23 +68,17 @@
                         ...listHome,
                         {
                             home_no: no,
-                            home_id: record[i]["item_id"],
-                            home_idcateitem: record[i]["item_idcateitem"],
-                            home_nmcateitem: record[i]["item_nmcateitem"],
-                            home_iduom: record[i]["item_iduom"],
-                            home_name: record[i]["item_name"],
-                            home_descp: record[i]["item_descp"],
-                            home_urlimg: record[i]["item_urlimg"],
-                            home_inventory: record[i]["item_inventory"],
-                            home_sales: record[i]["item_sales"],
-                            home_purchase: record[i]["item_purchase"],
-                            home_status: record[i]["item_status"],
-                            home_status_css: record[i]["item_status_css"],
-                            home_sales_css: record[i]["item_sales_css"],
-                            home_purchase_css: record[i]["item_purchase_css"],
-                            home_inventory_css: record[i]["item_inventory_css"],
-                            home_create: record[i]["item_create"],
-                            home_update: record[i]["item_update"],
+                            home_id: record[i]["vendor_id"],
+                            home_name: record[i]["vendor_name"],
+                            home_pic: record[i]["vendor_pic"],
+                            home_alamat: record[i]["vendor_alamat"],
+                            home_email: record[i]["vendor_email"],
+                            home_phone1: record[i]["vendor_phone1"],
+                            home_phone2: record[i]["vendor_phone2"],
+                            home_status: record[i]["vendor_status"],
+                            home_status_css: record[i]["vendor_status_css"],
+                            home_create: record[i]["vendor_create"],
+                            home_update: record[i]["vendor_update"],
                         },
                     ];
                 }
@@ -102,15 +94,6 @@
                     ];
                 }
             }
-            for (var i = 0; i < record_listcateitem.length; i++) {
-                listCateitem = [
-                    ...listCateitem,
-                    {
-                        cateitem_id: record_listcateitem[i]["cateitem_id"],
-                        cateitem_name: record_listcateitem[i]["cateitem_name"],
-                    },
-                ];
-            }
         } else {
             logout();
         }
@@ -121,7 +104,6 @@
     }
     const handleRefreshData = (e) => {
         listHome = [];
-        listCateitem = [];
         totalrecord = 0;
         setTimeout(function () {
             initHome();
@@ -148,6 +130,5 @@
     {table_body_font}
     {listPage}
     {listHome}
-    {listCateitem}
     {totalrecord}/>
 {/if}
