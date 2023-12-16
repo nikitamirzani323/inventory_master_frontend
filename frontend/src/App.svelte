@@ -7,6 +7,7 @@
 	import Admin from "./pages/admin/Admin.svelte";
 	import Adminrule from "./pages/adminrule/Adminrule.svelte";
 	import Currency from "./pages/currency/Currency.svelte";
+	import Departement from "./pages/departement/Departement.svelte";
 	import Vendor from "./pages/vendor/Vendor.svelte";
 	import Uom from "./pages/uom/Uom.svelte";
 	import Branch from "./pages/branch/Branch.svelte";
@@ -36,6 +37,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/departement": wrap({
+				component: Departement,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/vendor": wrap({
 				component: Vendor,

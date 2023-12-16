@@ -36,6 +36,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
+                                <a class="dropdown-item" use:link href="/departement" style="font-size: 13px;">DEPARTEMENT MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/vendor" style="font-size: 13px;">VENDOR MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/currency" style="font-size: 13px;">CURRENCY MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/listuom" style="font-size: 13px;">UOM MANAGEMENT</a>

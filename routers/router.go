@@ -58,6 +58,8 @@ func Init() *fiber.App {
 	app.Post("/api/alladminrule", controllers.Adminrulehome)
 	app.Post("/api/saveadminrule", controllers.AdminruleSave)
 
+	app.Post("/api/departement", controllers.Departementhome)
+	app.Post("/api/departementsave", controllers.DepartementSave)
 	app.Post("/api/vendor", controllers.Vendorhome)
 	app.Post("/api/vendorsave", controllers.VendorSave)
 	app.Post("/api/curr", controllers.Currencyhome)
