@@ -853,6 +853,7 @@
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
+                        {#if parseInt(total_itemuom) < 3}
                         <div class="float-end">
                             <Button on:click={() => {
                                     NewItemUom("New",iditem_itemuom);
@@ -861,6 +862,7 @@
                                 button_title="<i class='bi bi-plus-lg'></i>&nbsp;New Uom"
                                 button_css="btn-dark"/>
                         </div>
+                        {/if}
                         <table class="table table-striped ">
                             <thead>
                                 <tr>
