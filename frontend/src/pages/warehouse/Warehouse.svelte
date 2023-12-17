@@ -52,7 +52,6 @@
             if (record != null) {
                 totalrecord = record.length;
                 let no = 0
-                let domain_css = "";
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
                     listHome = [

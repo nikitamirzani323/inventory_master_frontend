@@ -7,6 +7,7 @@
 	import Admin from "./pages/admin/Admin.svelte";
 	import Adminrule from "./pages/adminrule/Adminrule.svelte";
 	import Currency from "./pages/currency/Currency.svelte";
+	import Employee from "./pages/employee/Employee.svelte";
 	import Departement from "./pages/departement/Departement.svelte";
 	import Vendor from "./pages/vendor/Vendor.svelte";
 	import Uom from "./pages/uom/Uom.svelte";
@@ -37,6 +38,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/employee": wrap({
+				component: Employee,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/departement": wrap({
 				component: Departement,
