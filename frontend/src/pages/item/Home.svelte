@@ -413,12 +413,16 @@
             let record = json.record;
             if (record != null) {
                 let no = 0;
+                let tipe = ""
                 total_itemuom = record.length;
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
                     
                     if(record[i]["itemuom_default"] == "Y"){
                         iduomdefault_itemuom = record[i]["itemuom_iduom"]
+                        tipe = "Selling"
+                    }else{
+                        tipe = "Purchasing"
                     }
                     list_itemuom = [
                         ...list_itemuom,
@@ -427,6 +431,7 @@
                             itemuom_id: record[i]["itemuom_id"],
                             itemuom_iduom: record[i]["itemuom_iduom"],
                             itemuom_nmuom: record[i]["itemuom_nmuom"],
+                            itemuom_tipe: tipe,
                             itemuom_default: record[i]["itemuom_default"],
                             itemuom_default_css: record[i]["itemuom_default_css"],
                             itemuom_conversion: record[i]["itemuom_conversion"],
@@ -639,7 +644,7 @@
                 </div>
                 {#if sData == "New"}
                 <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Default Uom</label>
+                    <label for="exampleForm" class="form-label">Default Uom - Selling</label>
                     <select
                         bind:value="{iduom_field}" 
                         class="form-control required">
@@ -663,6 +668,18 @@
                     <label for="exampleForm" class="form-label">Description</label>
                     <textarea 
                         style="height: 100px;resize: none;" bind:value={descp_field} class="form-control "/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Url Image</label>
+                    <Input_custom
+                        bind:value={urlimg_field}
+                        input_tipe="text_standart"
+                        input_required=""
+                        input_maxlength="500"
+                        input_placeholder="Url Image"/>
+                </div>
+                <div class="mb-3">
+                    <img width="100" src="{urlimg_field}" alt="">
                 </div>
             </div>
             <div class="col-md-6">
@@ -692,15 +709,6 @@
                     <label class="form-check-label" for="flexCheckChecked">
                       Inventory
                     </label>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Url Image</label>
-                    <Input_custom
-                        bind:value={urlimg_field}
-                        input_tipe="text_standart"
-                        input_required=""
-                        input_maxlength="500"
-                        input_placeholder="Url Image"/>
                 </div>
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Status</label>
@@ -771,6 +779,18 @@
                     <textarea 
                         style="height: 100px;resize: none;" bind:value={descp_field} class="form-control "/>
                 </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Url Image</label>
+                    <Input_custom
+                        bind:value={urlimg_field}
+                        input_tipe="text_standart"
+                        input_required=""
+                        input_maxlength="500"
+                        input_placeholder="Url Image"/>
+                </div>
+                <div class="mb-3">
+                    <img width="150" src="{urlimg_field}" alt="">
+                </div>
             </div>
             <div class="col-md-6">
                 <div class="form-check">
@@ -799,18 +819,6 @@
                     <label class="form-check-label" for="flexCheckChecked">
                       Inventory
                     </label>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Url Image</label>
-                    <Input_custom
-                        bind:value={urlimg_field}
-                        input_tipe="text_standart"
-                        input_required=""
-                        input_maxlength="500"
-                        input_placeholder="Url Image"/>
-                </div>
-                <div class="mb-3">
-                    <img width="100" src="{urlimg_field}" alt="">
                 </div>
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Status</label>
@@ -848,7 +856,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Setting Uom
+                        Setting Uom and conversions
                     </button>
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
@@ -868,6 +876,7 @@
                                 <tr>
                                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan=2>&nbsp;</th>
                                     <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEFAULT</th>
+                                    <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
                                     <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UOM</th>
                                     <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CONVERTION</th>
                                 </tr>
@@ -894,6 +903,7 @@
                                                     {rec.itemuom_default}
                                                 </span>
                                             </td>
+                                            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.itemuom_tipe}</td>
                                             <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.itemuom_nmuom}</td>
                                             <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{rec.itemuom_conversion} {iduomdefault_itemuom}</td>
                                         </tr>
@@ -911,6 +921,18 @@
                                 </tbody>
                             {/if}
                         </table>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Inventory
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        
                     </div>
                 </div>
             </div>
@@ -955,7 +977,7 @@
             <select
                 class="form-control required"
                 bind:value={default_itemuom}>
-                <option value="N">--Please Select--</option>
+                <option value="N">N</option>
                 <option value="Y">Y</option>
             </select>
         </div>
