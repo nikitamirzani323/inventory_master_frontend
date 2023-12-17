@@ -11,22 +11,15 @@
 	export let table_body_font = ""
 	export let token = ""
 	export let listHome = []
-    export let listCatevendor = [];
     export let listPage = [];
 	export let totalrecord = 0
     let dispatch = createEventDispatcher();
-	let title_page = "VENDOR"
+	let title_page = "CATEGORY VENDOR"
     let sData = "";
     let myModal_newentry = "";
     let flag_id_field = false;
     let flag_btnsave = true;
-    let idcatevendor_field = "";
     let name_field = "";
-    let pic_field = "";
-    let alamat_field = "";
-    let email_field = "";
-    let phone1_field = "";
-    let phone2_field = "";
     let status_field = "";
     let create_field = "";
     let update_field = "";
@@ -53,20 +46,14 @@
         }
     }
     
-    const NewData = (e,id,idcatevendor,name,pic,alamat,email,phone1,phone2,status,create,update) => {
+    const NewData = (e,id,name,status,create,update) => {
         sData = e
         if(sData == "New"){
             clearField()
         }else{
             flag_id_field = true;
             idrecord = id
-            idcatevendor_field = idcatevendor
             name_field = name;
-            pic_field = pic;
-            alamat_field = alamat;
-            email_field = email;
-            phone1_field = phone1;
-            phone2_field = phone2;
             status_field = status;
             create_field = create;
             update_field = update;
@@ -87,34 +74,18 @@
                 flag = false
                 msg += "The Name is required\n"
             }
-            if(pic_field == ""){
-                flag = false
-                msg += "The Pic is required\n"
-            }
-            if(phone1_field == ""){
-                flag = false
-                msg += "The Phone 1 is required\n"
-            }
             if(status_field == ""){
                 flag = false
                 msg += "The Status is required\n"
             }
         }else{
-            if(idrecord == ""){
+            if(idrecord == 0){
                 flag = false
                 msg += "The Code is required\n"
             }
             if(name_field == ""){
                 flag = false
                 msg += "The Name is required\n"
-            }
-            if(pic_field == ""){
-                flag = false
-                msg += "The Pic is required\n"
-            }
-            if(phone1_field == ""){
-                flag = false
-                msg += "The Phone 1 is required\n"
             }
             if(status_field == ""){
                 flag = false
@@ -126,7 +97,7 @@
             flag_btnsave = false;
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
-            const res = await fetch("/api/vendorsave", {
+            const res = await fetch("/api/catevendorsave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -135,17 +106,11 @@
                 body: JSON.stringify({
                     sdata: sData,
                     page:"CURR-SAVE",
-                    vendor_search: searchHome,
-                    vendor_page: parseInt(pagingnow),
-                    vendor_id: idrecord,
-                    vendor_idcatevendor: parseInt(idcatevendor_field),
-                    vendor_name: name_field,
-                    vendor_pic: pic_field,
-                    vendor_alamat: alamat_field,
-                    vendor_email: email_field,
-                    vendor_phone1: phone1_field,
-                    vendor_phone2: phone2_field,
-                    vendor_status: status_field,
+                    catevendor_search: searchHome,
+                    catevendor_page: parseInt(pagingnow),
+                    catevendor_id: parseInt(idrecord),
+                    catevendor_name: name_field,
+                    catevendor_status: status_field,
                 }),
             });
             const json = await res.json();
@@ -172,13 +137,7 @@
     }
     function clearField(){
         idrecord = "";
-        idcatevendor_field = "";
         name_field = "";
-        pic_field = "";
-        alamat_field = "";
-        email_field = "";
-        phone1_field = "";
-        phone2_field = "";
         status_field = "";
         create_field = "";
         update_field = "";
@@ -261,7 +220,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Code, Vendor"
+                            placeholder="Search Category Vendor"
                             aria-label="Search"/>
                     </div>
                 </slot:template>
@@ -272,11 +231,7 @@
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                                 <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
-                                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CODE</th>
-                                <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CATEGORY VENDOR</th>
-                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VENDOR</th>
-                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PIC</th>
-                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
+                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CATEGORY VENDOR</th>
                             </tr>
                         </thead>
                         {#if totalrecord > 0}
@@ -286,7 +241,7 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i on:click={() => {
                                             //e,id,name,pic,alamat,email,phone1,phone2,status,create,update
-                                                NewData("Edit",rec.home_id, rec.home_idcatevendor,rec.home_name,
+                                                NewData("Edit",rec.home_id, rec.home_name,
                                                 rec.home_pic,rec.home_alamat,rec.home_email,rec.home_phone1,rec.home_phone2,rec.home_status,
                                                 rec.home_create, rec.home_update);
                                             }} class="bi bi-pencil"></i>
@@ -297,11 +252,7 @@
                                             {status(rec.home_status)}
                                         </span>
                                     </td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmcatevendor}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_pic}</td>
-                                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_phone1} / {rec.home_phone2}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -325,100 +276,38 @@
 
 <Modal
 	modal_id="modalentrycrud"
-	modal_size="modal-dialog-centered modal-lg"
+	modal_size="modal-dialog-centered "
 	modal_title="{title_page+"/"+sData}"
     modal_footer_css="padding:5px;"
 	modal_footer={true}>
 	<slot:template slot="body">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Category Vendor</label>
-                    <select
-                        bind:value="{idcatevendor_field}" 
-                        class="required form-control ">
-                        <option value="">--Please Select--</option>
-                        {#each listCatevendor as rec}
-                        <option value="{rec.catevendor_id}">{rec.catevendor_name}</option>
-                        {/each}
-                    </select>
-                    
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Name</label>
-                    <Input_custom
-                        bind:value={name_field}
-                        input_tipe="text_standart"
-                        input_required="required"
-                        input_maxlength="50"
-                        input_placeholder="Name"/>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Pic</label>
-                    <Input_custom
-                        bind:value={pic_field}
-                        input_tipe="text_standart"
-                        input_required="required"
-                        input_maxlength="50"
-                        input_placeholder="Pic"/>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Alamat</label>
-                    <textarea 
-                        style="height: 100px;resize: none;" 
-                        bind:value={alamat_field} class="form-control "/>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Email</label>
-                    <Input_custom
-                        bind:value={email_field}
-                        input_tipe="text_standart"
-                        input_required=""
-                        input_maxlength="70"
-                        input_placeholder="Email"/>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Phone 1</label>
-                    <Input_custom
-                        bind:value={phone1_field}
-                        input_tipe="text_standart"
-                        input_required="required"
-                        input_maxlength="20"
-                        input_placeholder="Phone 1"/>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Phone 2</label>
-                    <Input_custom
-                        bind:value={phone2_field}
-                        input_tipe="text_standart"
-                        input_required=""
-                        input_maxlength="20"
-                        input_placeholder="Phone 2"/>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Status</label>
-                    <select
-                        class="form-control required"
-                        bind:value={status_field}>
-                        <option value="">--Please Select--</option>
-                        <option value="Y">ACTIVE</option>
-                        <option value="N">DEACTIVE</option>
-                    </select>
-                </div>
-                {#if sData != "New"}
-                <div class="mb-3">
-                    <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
-                        Create : {create_field}<br />
-                        Update : {update_field}
-                    </div>
-                </div>
-                {/if}
+        <div class="mb-3">
+            <label for="exampleForm" class="form-label">Name</label>
+            <Input_custom
+                bind:value={name_field}
+                input_tipe="text_standart"
+                input_required="required"
+                input_maxlength="50"
+                input_placeholder="Name"/>
+        </div>
+        <div class="mb-3">
+            <label for="exampleForm" class="form-label">Status</label>
+            <select
+                class="form-control required"
+                bind:value={status_field}>
+                <option value="">--Please Select--</option>
+                <option value="Y">ACTIVE</option>
+                <option value="N">DEACTIVE</option>
+            </select>
+        </div>
+        {#if sData != "New"}
+        <div class="mb-3">
+            <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
+                Create : {create_field}<br />
+                Update : {update_field}
             </div>
         </div>
-        
-        
+        {/if}
 	</slot:template>
 	<slot:template slot="footer">
         {#if flag_btnsave}

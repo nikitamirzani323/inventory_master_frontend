@@ -9,6 +9,7 @@
 	import Currency from "./pages/currency/Currency.svelte";
 	import Employee from "./pages/employee/Employee.svelte";
 	import Departement from "./pages/departement/Departement.svelte";
+	import Catevendor from "./pages/catevendor/Catevendor.svelte";
 	import Vendor from "./pages/vendor/Vendor.svelte";
 	import Uom from "./pages/uom/Uom.svelte";
 	import Branch from "./pages/branch/Branch.svelte";
@@ -48,6 +49,13 @@
 			}),
 			"/departement": wrap({
 				component: Departement,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
+			}),
+			"/catevendor": wrap({
+				component: Catevendor,
 				props: {
 					table_header_font: table_header_font,
 					table_body_font: table_body_font,
