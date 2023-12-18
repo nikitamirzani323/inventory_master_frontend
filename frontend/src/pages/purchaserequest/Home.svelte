@@ -214,6 +214,59 @@
             alert(msg)
         }
     }
+    async function handleStatusPurchaseRequest(e) {
+        let flag = true
+        let msg = ""
+        
+        if(e == ""){
+            flag = false
+            msg += "The Branch is required\n"
+        }
+        if(parseInt(listdetail_field.length) < 1){
+            flag = false
+            msg += "The List Detail is required\n"
+        }
+        
+        if(flag){
+            flag_btnsave = false;
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            totalitem_field = listdetail_field.length
+            const res = await fetch("/api/purchaserequeststatussave", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    sdata: sData,
+                    page:"CURR-SAVE",
+                    purchaserequest_id: idrecord,
+                    purchaserequest_status: e,
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                flag_btnsave = true;
+                if(sData=="New"){
+                    clearField()
+                }
+                msgloader = json.message;
+                RefreshHalaman()
+            } else if(json.status == 403){
+                flag_btnsave = true;
+                alert(json.message)
+            } else {
+                flag_btnsave = true;
+                msgloader = json.message;
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
     function clearField(){
         idrecord = "";
         iddepartement_field = "";
@@ -748,12 +801,26 @@
 	</slot:template>
 	<slot:template slot="footer">
         {#if flag_btnsave}
+            <Button on:click={() => {
+                    handleSave();
+                }} 
+                button_function="SAVE"
+                button_title="<i class='bi bi-save'></i>&nbsp;&nbsp;Save"
+                button_css="btn-warning"/>
+        {/if}
+        {#if status_field == "OPEN"}
         <Button on:click={() => {
-                handleSave();
+                handleStatusPurchaseRequest("PROCESS");
             }} 
-            button_function="SAVE"
-            button_title="<i class='bi bi-save'></i>&nbsp;&nbsp;Save"
-            button_css="btn-warning"/>
+            button_function="PROCESS"
+            button_title="<i class='bi bi-trash'></i>&nbsp;&nbsp;Cancel"
+            button_css="btn-danger"/>
+        <Button on:click={() => {
+                handleStatusPurchaseRequest("PROCESS");
+            }} 
+            button_function="PROCESS"
+            button_title="<i class='bi bi-arrow-right'></i>&nbsp;&nbsp;Process"
+            button_css="btn-info"/>
         {/if}
 	</slot:template>
 </Modal>
