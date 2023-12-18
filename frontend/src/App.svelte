@@ -15,6 +15,7 @@
 	import Branch from "./pages/branch/Branch.svelte";
 	import Warehouse from "./pages/warehouse/Warehouse.svelte";
 	import Categoryitem from "./pages/categoryitem/Categoryitem.svelte";
+	import Purchaserequest from "./pages/purchaserequest/Purchaserequest.svelte";
 	import Item from "./pages/item/Item.svelte";
 	import Login from "./pages/Login.svelte";
 	import NotFound from "./pages/NotFound.svelte";
@@ -39,6 +40,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/purchaserequest": wrap({
+				component: Purchaserequest,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/employee": wrap({
 				component: Employee,
