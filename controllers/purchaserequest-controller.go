@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"log"
 	"strings"
 	"time"
@@ -91,18 +92,20 @@ func PurchaseRequesthome(c *fiber.Ctx) error {
 }
 func PurchaseRequestSave(c *fiber.Ctx) error {
 	type payload_prsave struct {
-		Page                          string `json:"page"`
-		Sdata                         string `json:"sdata" `
-		Purchaserequest_search        string `json:"purchaserequest_search" `
-		Purchaserequest_page          int    `json:"purchaserequest_page" `
-		Purchaserequest_id            string `json:"purchaserequest_id" `
-		Purchaserequest_idbranch      string `json:"purchaserequest_idbranch" `
-		Purchaserequest_iddepartement string `json:"purchaserequest_iddepartement" `
-		Purchaserequest_idemployee    string `json:"purchaserequest_idemployee" `
-		Purchaserequest_idcurr        string `json:"purchaserequest_idcurr" `
-		Purchaserequest_tipedoc       string `json:"purchaserequest_tipedoc" `
-		Purchaserequest_listdetail    string `json:"purchaserequest_listdetail" `
-		Purchaserequest_status        string `json:"purchaserequest_status" `
+		Page                          string          `json:"page"`
+		Sdata                         string          `json:"sdata" `
+		Purchaserequest_search        string          `json:"purchaserequest_search" `
+		Purchaserequest_page          int             `json:"purchaserequest_page" `
+		Purchaserequest_id            string          `json:"purchaserequest_id" `
+		Purchaserequest_idbranch      string          `json:"purchaserequest_idbranch" `
+		Purchaserequest_iddepartement string          `json:"purchaserequest_iddepartement" `
+		Purchaserequest_idemployee    string          `json:"purchaserequest_idemployee" `
+		Purchaserequest_idcurr        string          `json:"purchaserequest_idcurr" `
+		Purchaserequest_tipedoc       string          `json:"purchaserequest_tipedoc" `
+		Purchaserequest_listdetail    json.RawMessage `json:"purchaserequest_listdetail" `
+		Purchaserequest_totalitem     float32         `json:"purchaserequest_totalitem" `
+		Purchaserequest_subtotal      float32         `json:"purchaserequest_subtotal" `
+		Purchaserequest_remark        string          `json:"purchaserequest_remark" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -137,8 +140,10 @@ func PurchaseRequestSave(c *fiber.Ctx) error {
 			"purchaserequest_idemployee":    client.Purchaserequest_idemployee,
 			"purchaserequest_idcurr":        client.Purchaserequest_idcurr,
 			"purchaserequest_tipedoc":       client.Purchaserequest_tipedoc,
-			"purchaserequest_listdetail":    client.Purchaserequest_listdetail,
-			"purchaserequest_status":        client.Purchaserequest_status,
+			"purchaserequest_listdetail":    string(client.Purchaserequest_listdetail),
+			"purchaserequest_totalitem":     client.Purchaserequest_totalitem,
+			"purchaserequest_subtotal":      client.Purchaserequest_subtotal,
+			"purchaserequest_remark":        client.Purchaserequest_remark,
 		}).
 		Post(PATH + "api/purchaserequestsave")
 	if err != nil {

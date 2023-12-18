@@ -83,6 +83,7 @@ func Init() *fiber.App {
 	app.Post("/api/categoryitem", controllers.Cateitemhome)
 	app.Post("/api/categoryitemsave", controllers.CateitemSave)
 	app.Post("/api/item", controllers.Itemhome)
+	app.Post("/api/itemshare", controllers.Itemshare)
 	app.Post("/api/itemuom", controllers.Itemuom)
 	app.Post("/api/itemsave", controllers.ItemSave)
 	app.Post("/api/itemuomsave", controllers.ItemuomSave)

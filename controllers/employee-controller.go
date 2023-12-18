@@ -85,7 +85,6 @@ func Employeehome(c *fiber.Ctx) error {
 }
 func Employeeshare(c *fiber.Ctx) error {
 	type payload_employeehome struct {
-		Employee_search        string `json:"employee_search"`
 		Employee_iddepartement string `json:"employee_iddepartement"`
 	}
 	hostname := c.Hostname()
@@ -111,7 +110,6 @@ func Employeeshare(c *fiber.Ctx) error {
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
 			"client_hostname":        hostname,
-			"employee_search":        client.Employee_search,
 			"employee_iddepartement": client.Employee_iddepartement,
 		}).
 		Post(PATH + "api/employeeshare")

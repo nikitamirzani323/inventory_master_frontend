@@ -583,7 +583,7 @@
                                         </span>
                                     </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmcateitem}</td>
+                                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmcateitem}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_iduom}</td>
                                     <td  style="text-align: center;vertical-align: top;font-size: {table_body_font};">
