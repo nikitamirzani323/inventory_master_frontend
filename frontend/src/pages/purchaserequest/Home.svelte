@@ -277,6 +277,7 @@
         tipedoc_field = "";
         listdetail_field = [];
         remark_field = "";
+        subtotal_detail = 0;
         status_field = "";
         create_field = "";
         update_field = "";
