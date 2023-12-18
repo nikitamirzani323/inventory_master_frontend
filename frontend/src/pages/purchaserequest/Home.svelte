@@ -83,6 +83,7 @@
         if(sData == "New"){
             clearField()
         }else{
+            call_detail(id)
             flag_id_field = true;
             idrecord = id
             iddepartement_field = iddepartement;
@@ -299,14 +300,15 @@
         if(flag){
             let total = parseInt(qty_item_field)* parseInt(price_item_field);
             subtotal_detail = subtotal_detail + total;
-            listdetail_field = [...listdetail_field,
+            listdetail_field = [
+                ...listdetail_field,
                 {
                     detail_iditem: iditem_item_field,
                     detail_nmitem: nmitem_item_field,
                     detail_qty: parseFloat(qty_item_field),
                     detail_iduom: iduom_item_field,
                     detail_price: parseFloat(price_item_field),
-                    total_item_field: parseFloat(total),
+                    detail_total: parseFloat(total),
                     detail_purpose: purpose_item_field,
                 },
             ];
@@ -331,7 +333,7 @@
         listdetail_field = [];
         subtotal_detail = 0;
         for (var i = 0; i < temp.length; i++) {
-            let total = parseInt(temp[i].detail_qty)* parseInt(temp[i].detail_price);
+            let total = parseFloat(temp[i].detail_qty)* parseFloat(temp[i].detail_price);
             subtotal_detail = subtotal_detail + total;
 
             listdetail_field = [
@@ -342,7 +344,7 @@
                     detail_qty: temp[i].detail_qty,
                     detail_iduom: temp[i].detail_iduom,
                     detail_price: temp[i].detail_price,
-                    total_item_field: total,
+                    detail_total: total,
                     detail_purpose: temp[i].detail_purpose,
                 },
             ];
@@ -391,37 +393,76 @@
     async function call_item(searchitem) {
         listitem = [];
         const res = await fetch("/api/itemshare", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify({
-            item_search: searchitem,
-            item_page: 0,
-        }),
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                item_search: searchitem,
+                item_page: 0,
+            }),
         });
         const json = await res.json();
         if (json.status == 200) {
-        let record = json.record;
-        if (record != null) {
-            let no = 0;
-            for (var i = 0; i < record.length; i++) {
-            no = no + 1;
-            listitem = [
-                ...listitem,
-                {
-                    itemshare_no: no,
-                    itemshare_id: record[i]["itemshare_id"],
-                    itemshare_nmcateitem: record[i]["itemshare_nmcateitem"],
-                    itemshare_name: record[i]["itemshare_name"],
-                    itemshare_descp: record[i]["itemshare_descp"],
-                    itemshare_urlimg: record[i]["itemshare_urlimg"],
-                    itemshare_uom: record[i]["itemshare_uom"],
-                },
-            ];
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                for (var i = 0; i < record.length; i++) {
+                no = no + 1;
+                listitem = [
+                    ...listitem,
+                    {
+                        itemshare_no: no,
+                        itemshare_id: record[i]["itemshare_id"],
+                        itemshare_nmcateitem: record[i]["itemshare_nmcateitem"],
+                        itemshare_name: record[i]["itemshare_name"],
+                        itemshare_descp: record[i]["itemshare_descp"],
+                        itemshare_urlimg: record[i]["itemshare_urlimg"],
+                        itemshare_uom: record[i]["itemshare_uom"],
+                    },
+                ];
+                }
             }
         }
+    }
+    async function call_detail(idpurchase) {
+        listdetail_field = [];
+        subtotal_detail = 0;
+        const res = await fetch("/api/purchaserequestdetail", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                purchaserequest_id: idpurchase,
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    let total = parseFloat(record[i]["purchaserequestdetail_qty"]) * parseFloat(record[i]["purchaserequestdetail_price"])
+                    subtotal_detail = subtotal_detail + total;
+                    listdetail_field = [
+                        ...listdetail_field,
+                        {
+                            detail_no: no,
+                            detail_iditem: record[i]["purchaserequestdetail_iditem"],
+                            detail_nmitem: record[i]["purchaserequestdetail_nmitem"],
+                            detail_purpose: record[i]["purchaserequestdetail_purpose"],
+                            detail_qty: record[i]["purchaserequestdetail_qty"],
+                            detail_iduom: record[i]["purchaserequestdetail_iduom"],
+                            detail_price: record[i]["purchaserequestdetail_price"],
+                            detail_total: total,
+                        },
+                    ];
+                }
+            }
         }
     }
     function callFunction(event){
@@ -643,9 +684,17 @@
                         style="height: 100px;resize: none;" 
                         bind:value={remark_field} class="form-control "/>
                 </div>
+                {#if sData != "New"}
+                <div class="mb-3">
+                    <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
+                        Create : {create_field}<br />
+                        Update : {update_field}
+                    </div>
+                </div>
+                {/if}
             </div>
             <div class="col-md-8">
-                <div class="table-responsive" style="height: 500px;">
+                <div class="table-responsive border border-primary p-2" style="height: 550px;">
                     <div class="float-end">
                         <Button on:click={() => {
                                 ShowFormDetail();
@@ -674,7 +723,7 @@
                                     }} class="bi bi-trash"></i>
                                 </td>
                                 <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
-                                    {rec.detail_iditem+"-"+rec.detail_nmitem}
+                                    {rec.detail_iditem +"-"+ rec.detail_nmitem}
                                     {#if rec.detail_purpose != ""}
                                         <br />
                                         PURPOSE : {@html rec.detail_purpose}
@@ -683,7 +732,7 @@
                                 <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.detail_qty)}</td>
                                 <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.detail_iduom}</td>
                                 <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.detail_price)}</td>
-                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.total_item_field)}</td>
+                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.detail_total)}</td>
                             </tr>
                         {/each}
                         </tbody>
@@ -693,14 +742,7 @@
                     Subtotal : {new Intl.NumberFormat().format(subtotal_detail)}
                 </div>
                 
-                {#if sData != "New"}
-                <div class="mb-3">
-                    <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
-                        Create : {create_field}<br />
-                        Update : {update_field}
-                    </div>
-                </div>
-                {/if}
+               
             </div>
         </div>
 	</slot:template>
