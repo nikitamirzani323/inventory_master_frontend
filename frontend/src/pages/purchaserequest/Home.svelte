@@ -353,6 +353,16 @@
             flag = false
             msg += "The Price is required\n"
         }
+
+        for(let i=0;i<listdetail_field.length;i++){
+            if(listdetail_field[i].detail_iditem == iditem_item_field){
+                flag = false
+                msg += "Duplicate item\n"
+                break;
+            }
+        }
+    
+
         if(flag){
             let total = parseInt(qty_item_field)* parseInt(price_item_field);
             subtotal_detail = subtotal_detail + total;
