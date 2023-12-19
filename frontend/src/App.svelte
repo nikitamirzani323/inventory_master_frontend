@@ -14,6 +14,7 @@
 	import Uom from "./pages/uom/Uom.svelte";
 	import Branch from "./pages/branch/Branch.svelte";
 	import Warehouse from "./pages/warehouse/Warehouse.svelte";
+	import Merek from "./pages/merek/Merek.svelte";
 	import Categoryitem from "./pages/categoryitem/Categoryitem.svelte";
 	import Purchaserequest from "./pages/purchaserequest/Purchaserequest.svelte";
 	import Item from "./pages/item/Item.svelte";
@@ -40,6 +41,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/merek": wrap({
+				component: Merek,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/purchaserequest": wrap({
 				component: Purchaserequest,

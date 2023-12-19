@@ -26,6 +26,130 @@ type response_item struct {
 	Totalrecord  int         `json:"totalrecord"`
 }
 
+func Merekhome(c *fiber.Ctx) error {
+	type payload_merekhome struct {
+		Merek_search string `json:"merek_search"`
+		Merek_page   int    `json:"merek_page"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_merekhome)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(Responsecateitem{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"merek_search":    client.Merek_search,
+			"merek_page":      client.Merek_page,
+		}).
+		Post(PATH + "api/merek")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*Responsecateitem)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":      result.Status,
+			"message":     result.Message,
+			"record":      result.Record,
+			"perpage":     result.Perpage,
+			"totalrecord": result.Totalrecord,
+			"time":        time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+}
+func Merekshare(c *fiber.Ctx) error {
+	type payload_merekhome struct {
+		Merek_search string `json:"merek_search"`
+		Merek_page   int    `json:"merek_page"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_merekhome)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"merek_search":    client.Merek_search,
+			"merek_page":      client.Merek_page,
+		}).
+		Post(PATH + "api/merekshare")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+}
 func Cateitemhome(c *fiber.Ctx) error {
 	type payload_cateitemhome struct {
 		Cateitem_search string `json:"cateitem_search"`
@@ -275,6 +399,77 @@ func Itemuom(c *fiber.Ctx) error {
 		})
 	}
 }
+func MerekSave(c *fiber.Ctx) error {
+	type payload_mereksave struct {
+		Page         string `json:"page"`
+		Sdata        string `json:"sdata" `
+		Merek_search string `json:"merek_search" `
+		Merek_page   int    `json:"merek_page" `
+		Merek_id     int    `json:"merek_id" `
+		Merek_name   string `json:"merek_name" `
+		Merek_status string `json:"merek_status" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_mereksave)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"merek_search":    client.Merek_search,
+			"merek_page":      client.Merek_page,
+			"merek_id":        client.Merek_id,
+			"merek_name":      client.Merek_name,
+			"merek_status":    client.Merek_status,
+		}).
+		Post(PATH + "api/mereksave")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+}
 func CateitemSave(c *fiber.Ctx) error {
 	type payload_cateitemsave struct {
 		Page            string `json:"page"`
@@ -353,6 +548,7 @@ func ItemSave(c *fiber.Ctx) error {
 		Item_search     string `json:"item_search" `
 		Item_page       int    `json:"item_page" `
 		Item_id         string `json:"item_id" `
+		Item_idmerek    int    `json:"item_idmerek" `
 		Item_idcateitem int    `json:"item_idcateitem" `
 		Item_iduom      string `json:"item_iduom" `
 		Item_name       string `json:"item_name" `
@@ -391,6 +587,7 @@ func ItemSave(c *fiber.Ctx) error {
 			"item_search":     client.Item_search,
 			"item_page":       client.Item_page,
 			"item_id":         client.Item_id,
+			"item_idmerek":    client.Item_idmerek,
 			"item_idcateitem": client.Item_idcateitem,
 			"item_iduom":      client.Item_iduom,
 			"item_name":       client.Item_name,

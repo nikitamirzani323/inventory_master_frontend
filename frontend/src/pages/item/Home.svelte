@@ -18,8 +18,12 @@
 	let title_page = "ITEM"
     let sData = "";
     let myModal_newentry = "";
+    let myModal_merek = "";
     let flag_id_field = false;
     let flag_btnsave = true;
+    let listMerek = [];
+    let idmerek_field = 0;
+    let nmmerek_field = "";
     let idcateitem_field = "";
     let iduom_field = "";
     let name_field = "";
@@ -71,7 +75,7 @@
         }
     }
     
-    const NewData = (e,id,idcateitem,nmitem,descp,urlimg,status,purchase,sales,inventory,create,update) => {
+    const NewData = (e,id,idmerek,nmmerek,idcateitem,nmitem,descp,urlimg,status,purchase,sales,inventory,create,update) => {
         sData = e
         if(sData == "New"){
             call_uom()
@@ -82,6 +86,8 @@
             call_itemuom(id)
             flag_id_field = true;
             idrecord = id
+            idmerek_field = idmerek;
+            nmmerek_field = nmmerek;
             idcateitem_field = idcateitem;
             name_field = nmitem;
             descp_field = descp;
@@ -125,6 +131,10 @@
         let msg = ""
         
         if(sData == "New"){
+            if(parseInt(idmerek_field) < 0){
+                flag = false
+                msg += "The Merek is required\n"
+            }
             if(idcateitem_field == ""){
                 flag = false
                 msg += "The Category is required\n"
@@ -142,6 +152,10 @@
                 msg += "The Status is required\n"
             }
         }else{
+            if(parseInt(idmerek_field) < 0){
+                flag = false
+                msg += "The Merek is required\n"
+            }
             if(idcateitem_field == ""){
                 flag = false
                 msg += "The Category is required\n"
@@ -187,6 +201,7 @@
                     item_search: searchHome,
                     item_page: parseInt(pagingnow),
                     item_id: idrecord,
+                    item_idmerek: parseInt(idmerek_field),
                     item_idcateitem: idcateitem_field,
                     item_iduom: iduom_field,
                     item_name: name_field,
@@ -366,6 +381,45 @@
             alert(msg)
         }
     }
+    const ShowMerek = () => {
+        call_merek()
+        myModal_merek = new bootstrap.Modal(document.getElementById("modalmerek"));
+        myModal_merek.show();
+    };
+    const handle_pilihmerek = (e,nm) => {    
+        idmerek_field = e;
+        nmmerek_field = nm;
+        myModal_merek.hide();
+    };
+    async function call_merek() {
+        listMerek = [];
+        const res = await fetch("/api/merekshare", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    listMerek = [
+                        ...listMerek,
+                        {
+                            merek_id: record[i]["merek_id"],
+                            merek_name: record[i]["merek_name"],
+                        },
+                    ];
+                }
+            }
+        }
+    }
     async function call_uom() {
         listuom = [];
         const res = await fetch("/api/uomshare", {
@@ -445,6 +499,8 @@
     }
     function clearField(){
         idrecord = "";
+        idmerek_field = 0;
+        nmmerek_field = "";
         idcateitem_field = "";
         iduom_field = "";
         name_field = "";
@@ -556,6 +612,7 @@
                                 <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CODE</th>
                                 <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CATEGORY ITEM</th>
+                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MEREK</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">ITEM</th>
                                 <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEFAULT UOM</th>
                                 <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PURCHASE</th>
@@ -570,7 +627,7 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i on:click={() => {
                                             //e,id,idcateitem,nmitem,descp,status,purchase,sales,inventory,create,update
-                                                NewData("Edit",rec.home_id, rec.home_idcateitem,
+                                                NewData("Edit",rec.home_id, rec.home_idmerek,rec.home_nmmerek ,rec.home_idcateitem,
                                                 rec.home_name,rec.home_descp,rec.home_urlimg,rec.home_status,
                                                 rec.home_purchase,rec.home_sales,rec.home_inventory,
                                                 rec.home_create, rec.home_update);
@@ -584,6 +641,7 @@
                                     </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
                                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmcateitem}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmmerek}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_iduom}</td>
                                     <td  style="text-align: center;vertical-align: top;font-size: {table_body_font};">
@@ -641,6 +699,21 @@
                         <option value="{rec.cateitem_id}">{rec.cateitem_name}</option>
                         {/each}
                     </select>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Merek</label>
+                    <div class="input-group mb-3">
+                        <input type="text" 
+                            bind:value="{nmmerek_field}" 
+                            disabled
+                            class="form-control" placeholder="Merek" >
+                        <Button on:click={() => {
+                                ShowMerek();
+                            }} 
+                            button_function="New"
+                            button_title="<i class='bi bi-search'></i>"
+                            button_css="btn-warning"/>
+                    </div>
                 </div>
                 {#if sData == "New"}
                 <div class="mb-3">
@@ -764,6 +837,21 @@
                         <option value="{rec.cateitem_id}">{rec.cateitem_name}</option>
                         {/each}
                     </select>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Merek</label>
+                    <div class="input-group mb-3">
+                        <input type="text" 
+                            bind:value="{nmmerek_field}" 
+                            disabled
+                            class="form-control" placeholder="Merek" >
+                        <Button on:click={() => {
+                                ShowMerek();
+                            }} 
+                            button_function="New"
+                            button_title="<i class='bi bi-search'></i>"
+                            button_css="btn-warning"/>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="exampleForm" class="form-label">Name</label>
@@ -1001,4 +1089,31 @@
             button_css="btn-warning"/>
         {/if}
 	</slot:template>
+</Modal>
+
+<Modal
+  modal_id="modalmerek"
+  modal_size="modal-dialog-centered"
+  modal_title="MEREK"
+  modal_body_css="height:500px; overflow-y: scroll;"
+  modal_footer_css="padding:5px;"
+  modal_footer={false}>
+  <slot:template slot="body">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">MEREK</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each listMerek as rec}
+          <tr style="cursor: pointer;" on:click={() => {
+                handle_pilihmerek(rec.merek_id,rec.merek_name);
+            }} >
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.merek_name}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </slot:template>
 </Modal>
