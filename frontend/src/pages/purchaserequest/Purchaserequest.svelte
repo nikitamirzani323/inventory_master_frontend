@@ -79,6 +79,7 @@
                         {
                             home_no: no,
                             home_id: record[i]["purchaserequest_id"],
+                            home_date: record[i]["purchaserequest_date"],
                             home_idbranch: record[i]["purchaserequest_idbranch"],
                             home_idcurr: record[i]["purchaserequest_idcurr"],
                             home_iddepartement: record[i]["purchaserequest_iddepartement"],

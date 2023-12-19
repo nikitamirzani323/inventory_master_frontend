@@ -37,7 +37,9 @@
     let update_field = "";
     let idrecord = 0;
     let pagingnow = 0;
+    let searchMerek = "";
     let searchHome = "";
+    let filterMerek = [];
     let filterHome = [];
     let listuom = [];
     
@@ -72,6 +74,16 @@
             );
         } else {
             filterHome = [...listHome];
+        }
+        if (searchMerek) {
+            filterMerek = listMerek.filter(
+                (item) =>
+                    item.merek_name
+                        .toLowerCase()
+                        .includes(searchMerek.toLowerCase()) 
+            );
+        } else {
+            filterMerek = [...listMerek];
         }
     }
     
@@ -400,6 +412,8 @@
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
+                merek_search: searchMerek,
+                merek_page : 0
             }),
         });
         const json = await res.json();
@@ -543,6 +557,14 @@
                 };
                 dispatch("handleSearch", searchdata);
         }  
+    };
+    const handleKeyboard_merek_checkenter = (e) => {
+        let keyCode = e.which || e.keyCode;
+        if (keyCode === 13) {
+            filterMerek = [];
+            listMerek = [];
+            call_merek();
+        }
     };
     const handleSelectPaging = (event) => {
       let page = event.target.value;
@@ -1097,23 +1119,33 @@
   modal_title="MEREK"
   modal_body_css="height:500px; overflow-y: scroll;"
   modal_footer_css="padding:5px;"
+  modal_search={true}
   modal_footer={false}>
-  <slot:template slot="body">
-    <table class="table table-sm">
-      <thead>
-        <tr>
-          <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">MEREK</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each listMerek as rec}
-          <tr style="cursor: pointer;" on:click={() => {
-                handle_pilihmerek(rec.merek_id,rec.merek_name);
-            }} >
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.merek_name}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </slot:template>
+    <slot:template slot="search">
+        <input
+            bind:value={searchMerek}
+            on:keypress={handleKeyboard_merek_checkenter}
+            type="text"
+            class="form-control"
+            placeholder="Search Merek"
+            aria-label="Search"/>
+    </slot:template>
+    <slot:template slot="body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">MEREK</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each filterMerek as rec}
+                    <tr style="cursor: pointer;" on:click={() => {
+                        handle_pilihmerek(rec.merek_id,rec.merek_name);
+                        }} >
+                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};text-decoration:underline;">{rec.merek_name}</td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+    </slot:template>
 </Modal>

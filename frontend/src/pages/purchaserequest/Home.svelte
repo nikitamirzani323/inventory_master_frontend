@@ -24,6 +24,7 @@
     let myModal_employee = "";
     let flag_id_field = false;
     let flag_btnsave = true;
+    let lock_document = false;
     let iddepartement_field = "";
     let idemployee_field = "";
     let nmemployee_field = "";
@@ -82,8 +83,10 @@
         sData = e
         if(sData == "New"){
             clearField()
+            lock_document = true;
         }else{
             call_detail(id)
+            lock_document = false;
             flag_id_field = true;
             idrecord = id
             iddepartement_field = iddepartement;
@@ -95,7 +98,10 @@
             remark_field = remark;
             status_field = status;
             create_field = create;
-            update_field = update
+            update_field = update;
+            if(status == "OPEN"){
+                lock_document = true;
+            }
         }
         myModal_newentry = new bootstrap.Modal(document.getElementById("modalentrycrud"));
         myModal_newentry.show();
@@ -217,15 +223,15 @@
     async function handleStatusPurchaseRequest(e) {
         let flag = true
         let msg = ""
-        
+        if(idrecord == ""){
+            flag = false
+            msg += "The Document is required\n"
+        }
         if(e == ""){
             flag = false
             msg += "The Branch is required\n"
         }
-        if(parseInt(listdetail_field.length) < 1){
-            flag = false
-            msg += "The List Detail is required\n"
-        }
+       
         
         if(flag){
             flag_btnsave = false;
@@ -239,8 +245,6 @@
                     Authorization: "Bearer " + token,
                 },
                 body: JSON.stringify({
-                    sdata: sData,
-                    page:"CURR-SAVE",
                     purchaserequest_id: idrecord,
                     purchaserequest_status: e,
                 }),
@@ -248,9 +252,6 @@
             const json = await res.json();
             if (json.status == 200) {
                 flag_btnsave = true;
-                if(sData=="New"){
-                    clearField()
-                }
                 msgloader = json.message;
                 RefreshHalaman()
             } else if(json.status == 403){
@@ -269,6 +270,7 @@
     }
     function clearField(){
         idrecord = "";
+        lock_document = false;
         iddepartement_field = "";
         idemployee_field = "";
         nmemployee_field = "";
@@ -560,7 +562,7 @@
 <div id="loader" style="margin-left:50%;{css_loader}">
     {msgloader}
 </div>
-<div class="container" style="margin-top: 70px;">
+<div class="container-fluid" style="margin-top: 70px;">
     <div class="row">
         <div class="col-sm-12">
             <Button
@@ -596,7 +598,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Code, Vendor"
+                            placeholder="Search Code"
                             aria-label="Search"/>
                     </div>
                 </slot:template>
@@ -608,6 +610,7 @@
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                                 <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DOCUMENT</th>
+                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DATE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TIPE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">BRANCH</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPARTEMENT</th>
@@ -636,6 +639,7 @@
                                         </span>
                                     </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
+                                    <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_date}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_tipedoc}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmbranch}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmdepartement}</td>
@@ -749,6 +753,7 @@
             </div>
             <div class="col-md-8">
                 <div class="table-responsive border border-primary p-2" style="height: 550px;">
+                    {#if lock_document}
                     <div class="float-end">
                         <Button on:click={() => {
                                 ShowFormDetail();
@@ -757,6 +762,7 @@
                             button_title="<i class='bi bi-plus-lg'></i>&nbsp;New Item"
                             button_css="btn-dark"/>
                     </div>
+                    {/if}
                     <table class="table table-sm">
                         <thead>
                             <tr>
@@ -802,26 +808,28 @@
 	</slot:template>
 	<slot:template slot="footer">
         {#if flag_btnsave}
+            {#if lock_document}
             <Button on:click={() => {
                     handleSave();
                 }} 
                 button_function="SAVE"
                 button_title="<i class='bi bi-save'></i>&nbsp;&nbsp;Save"
                 button_css="btn-warning"/>
+            {/if}
         {/if}
         {#if status_field == "OPEN"}
-        <Button on:click={() => {
-                handleStatusPurchaseRequest("PROCESS");
-            }} 
-            button_function="PROCESS"
-            button_title="<i class='bi bi-trash'></i>&nbsp;&nbsp;Cancel"
-            button_css="btn-danger"/>
-        <Button on:click={() => {
-                handleStatusPurchaseRequest("PROCESS");
-            }} 
-            button_function="PROCESS"
-            button_title="<i class='bi bi-arrow-right'></i>&nbsp;&nbsp;Process"
-            button_css="btn-info"/>
+            <Button on:click={() => {
+                    handleStatusPurchaseRequest("CANCEL");
+                }} 
+                button_function="PROCESS"
+                button_title="<i class='bi bi-trash'></i>&nbsp;&nbsp;Cancel"
+                button_css="btn-danger"/>
+            <Button on:click={() => {
+                    handleStatusPurchaseRequest("PROCESS");
+                }} 
+                button_function="PROCESS"
+                button_title="<i class='bi bi-arrow-right'></i>&nbsp;&nbsp;Process"
+                button_css="btn-info"/>
         {/if}
 	</slot:template>
 </Modal>
