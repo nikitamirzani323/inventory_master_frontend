@@ -37,7 +37,7 @@
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
                                 <a class="dropdown-item" use:link href="/purchaserequest" style="font-size: 13px;">PURCHASE REQUEST</a>
-                                <a class="dropdown-item" use:link href="/employee" style="font-size: 13px;">REQUEST FOR QUOTATION</a>
+                                <a class="dropdown-item" use:link href="/rfq" style="font-size: 13px;">REQUEST FOR QUOTATION</a>
                                 <a class="dropdown-item" use:link href="/catevendor" style="font-size: 13px;">PURCHASE ORDER</a>
                                 <a class="dropdown-item" use:link href="/catevendor" style="font-size: 13px;">GOODS RECEIPT PO</a>
                                 <a class="dropdown-item" use:link href="/catevendor" style="font-size: 13px;">GOODS RETURN</a>

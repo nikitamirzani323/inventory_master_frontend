@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"log"
 	"strings"
 	"time"
@@ -9,33 +10,26 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type response_catevendor struct {
+type response_rfq struct {
 	Status      int         `json:"status"`
 	Message     string      `json:"message"`
 	Record      interface{} `json:"record"`
+	Listbranch  interface{} `json:"listbranch"`
+	Listcurr    interface{} `json:"listcurr"`
 	Perpage     int         `json:"perpage"`
 	Totalrecord int         `json:"totalrecord"`
 	Time        string      `json:"time"`
 }
-type response_vendor struct {
-	Status         int         `json:"status"`
-	Message        string      `json:"message"`
-	Record         interface{} `json:"record"`
-	Listcatevendor interface{} `json:"listcatevendor"`
-	Perpage        int         `json:"perpage"`
-	Totalrecord    int         `json:"totalrecord"`
-	Time           string      `json:"time"`
-}
 
-func Catevendorhome(c *fiber.Ctx) error {
-	type payload_catevendorhome struct {
-		Catevendor_search string `json:"catevendor_search"`
-		Catevendor_page   int    `json:"catevendor_page"`
+func Rfqhome(c *fiber.Ctx) error {
+	type payload_rfqhome struct {
+		Rfq_search string `json:"rfq_search"`
+		Rfq_page   int    `json:"rfq_page"`
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
 	token := strings.Split(bearToken, " ")
-	client := new(payload_catevendorhome)
+	client := new(payload_rfqhome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -49,16 +43,16 @@ func Catevendorhome(c *fiber.Ctx) error {
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
-		SetResult(response_catevendor{}).
+		SetResult(response_rfq{}).
 		SetAuthToken(token[1]).
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"client_hostname":   hostname,
-			"catevendor_search": client.Catevendor_search,
-			"catevendor_page":   client.Catevendor_page,
+			"client_hostname": hostname,
+			"rfq_search":      client.Rfq_search,
+			"rfq_page":        client.Rfq_page,
 		}).
-		Post(PATH + "api/catevendor")
+		Post(PATH + "api/rfq")
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -71,12 +65,14 @@ func Catevendorhome(c *fiber.Ctx) error {
 	log.Println("  Received At:", resp.ReceivedAt())
 	log.Println("  Body       :\n", resp)
 	log.Println()
-	result := resp.Result().(*response_catevendor)
+	result := resp.Result().(*response_rfq)
 	if result.Status == 200 {
 		return c.JSON(fiber.Map{
 			"status":      result.Status,
 			"message":     result.Message,
 			"record":      result.Record,
+			"listbranch":  result.Listbranch,
+			"listcurr":    result.Listcurr,
 			"perpage":     result.Perpage,
 			"totalrecord": result.Totalrecord,
 			"time":        time.Since(render_page).String(),
@@ -90,148 +86,14 @@ func Catevendorhome(c *fiber.Ctx) error {
 		})
 	}
 }
-func Vendorhome(c *fiber.Ctx) error {
-	type payload_vendorhome struct {
-		Vendor_search string `json:"vendor_search"`
-		Vendor_page   int    `json:"vendor_page"`
+func Rfqdetail(c *fiber.Ctx) error {
+	type payload_prhome struct {
+		Purchaserequest_id string `json:"purchaserequest_id"`
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
 	token := strings.Split(bearToken, " ")
-	client := new(payload_vendorhome)
-	if err := c.BodyParser(client); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-
-	log.Println("Hostname: ", hostname)
-	render_page := time.Now()
-	axios := resty.New()
-	resp, err := axios.R().
-		SetResult(response_vendor{}).
-		SetAuthToken(token[1]).
-		SetError(responseerror{}).
-		SetHeader("Content-Type", "application/json").
-		SetBody(map[string]interface{}{
-			"client_hostname": hostname,
-			"vendor_search":   client.Vendor_search,
-			"vendor_page":     client.Vendor_page,
-		}).
-		Post(PATH + "api/vendor")
-	if err != nil {
-		log.Println(err.Error())
-	}
-	log.Println("Response Info:")
-	log.Println("  Error      :", err)
-	log.Println("  Status Code:", resp.StatusCode())
-	log.Println("  Status     :", resp.Status())
-	log.Println("  Proto      :", resp.Proto())
-	log.Println("  Time       :", resp.Time())
-	log.Println("  Received At:", resp.ReceivedAt())
-	log.Println("  Body       :\n", resp)
-	log.Println()
-	result := resp.Result().(*response_vendor)
-	if result.Status == 200 {
-		return c.JSON(fiber.Map{
-			"status":         result.Status,
-			"message":        result.Message,
-			"record":         result.Record,
-			"listcatevendor": result.Listcatevendor,
-			"perpage":        result.Perpage,
-			"totalrecord":    result.Totalrecord,
-			"time":           time.Since(render_page).String(),
-		})
-	} else {
-		result_error := resp.Error().(*responseerror)
-		return c.JSON(fiber.Map{
-			"status":  result_error.Status,
-			"message": result_error.Message,
-			"time":    time.Since(render_page).String(),
-		})
-	}
-}
-func Vendorshare(c *fiber.Ctx) error {
-	type payload_vendorhome struct {
-		Vendor_search string `json:"vendor_search"`
-		Vendor_page   int    `json:"vendor_page"`
-	}
-	hostname := c.Hostname()
-	bearToken := c.Get("Authorization")
-	token := strings.Split(bearToken, " ")
-	client := new(payload_vendorhome)
-	if err := c.BodyParser(client); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-
-	log.Println("Hostname: ", hostname)
-	render_page := time.Now()
-	axios := resty.New()
-	resp, err := axios.R().
-		SetResult(response_vendor{}).
-		SetAuthToken(token[1]).
-		SetError(responseerror{}).
-		SetHeader("Content-Type", "application/json").
-		SetBody(map[string]interface{}{
-			"client_hostname": hostname,
-			"vendor_search":   client.Vendor_search,
-			"vendor_page":     client.Vendor_page,
-		}).
-		Post(PATH + "api/vendorshare")
-	if err != nil {
-		log.Println(err.Error())
-	}
-	log.Println("Response Info:")
-	log.Println("  Error      :", err)
-	log.Println("  Status Code:", resp.StatusCode())
-	log.Println("  Status     :", resp.Status())
-	log.Println("  Proto      :", resp.Proto())
-	log.Println("  Time       :", resp.Time())
-	log.Println("  Received At:", resp.ReceivedAt())
-	log.Println("  Body       :\n", resp)
-	log.Println()
-	result := resp.Result().(*response_vendor)
-	if result.Status == 200 {
-		return c.JSON(fiber.Map{
-			"status":         result.Status,
-			"message":        result.Message,
-			"record":         result.Record,
-			"listcatevendor": result.Listcatevendor,
-			"perpage":        result.Perpage,
-			"totalrecord":    result.Totalrecord,
-			"time":           time.Since(render_page).String(),
-		})
-	} else {
-		result_error := resp.Error().(*responseerror)
-		return c.JSON(fiber.Map{
-			"status":  result_error.Status,
-			"message": result_error.Message,
-			"time":    time.Since(render_page).String(),
-		})
-	}
-}
-func CatevendorSave(c *fiber.Ctx) error {
-	type payload_catevendorsave struct {
-		Page              string `json:"page"`
-		Sdata             string `json:"sdata" `
-		Catevendor_search string `json:"catevendor_search" `
-		Catevendor_page   int    `json:"catevendor_page" `
-		Catevendor_id     int    `json:"catevendor_id" `
-		Catevendor_name   string `json:"catevendor_name" `
-		Catevendor_status string `json:"catevendor_status" `
-	}
-	hostname := c.Hostname()
-	bearToken := c.Get("Authorization")
-	token := strings.Split(bearToken, " ")
-	client := new(payload_catevendorsave)
+	client := new(payload_prhome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -250,16 +112,9 @@ func CatevendorSave(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"client_hostname":   hostname,
-			"page":              client.Page,
-			"sdata":             client.Sdata,
-			"catevendor_search": client.Catevendor_search,
-			"catevendor_page":   client.Catevendor_page,
-			"catevendor_id":     client.Catevendor_id,
-			"catevendor_name":   client.Catevendor_name,
-			"catevendor_status": client.Catevendor_status,
+			"purchaserequest_id": client.Purchaserequest_id,
 		}).
-		Post(PATH + "api/catevendorsave")
+		Post(PATH + "api/purchaserequestdetail")
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -289,26 +144,25 @@ func CatevendorSave(c *fiber.Ctx) error {
 		})
 	}
 }
-func VendorSave(c *fiber.Ctx) error {
-	type payload_vendorsave struct {
-		Page                string `json:"page"`
-		Sdata               string `json:"sdata" `
-		Vendor_search       string `json:"vendor_search" `
-		Vendor_page         int    `json:"vendor_page" `
-		Vendor_id           string `json:"vendor_id" `
-		Vendor_idcatevendor int    `json:"vendor_idcatevendor" `
-		Vendor_name         string `json:"vendor_name" `
-		Vendor_pic          string `json:"vendor_pic" `
-		Vendor_alamat       string `json:"vendor_alamat" `
-		Vendor_email        string `json:"vendor_email" `
-		Vendor_phone1       string `json:"vendor_phone1" `
-		Vendor_phone2       string `json:"vendor_phone2" `
-		Vendor_status       string `json:"vendor_status" `
+func RfqSave(c *fiber.Ctx) error {
+	type payload_rfqsave struct {
+		Page           string          `json:"page"`
+		Sdata          string          `json:"sdata" `
+		Rfq_search     string          `json:"rfq_search" `
+		Rfq_page       int             `json:"rfq_page" `
+		Rfq_id         string          `json:"rfq_id" `
+		Rfq_idbranch   string          `json:"rfq_idbranch" `
+		Rfq_idvendor   string          `json:"rfq_idvendor" `
+		Rfq_idcurr     string          `json:"rfq_idcurr" `
+		Rfq_tipedoc    string          `json:"rfq_tipedoc" `
+		Rfq_listdetail json.RawMessage `json:"rfq_listdetail" `
+		Rfq_totalitem  float32         `json:"rfq_totalitem" `
+		Rfq_subtotal   float32         `json:"rfq_subtotal" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
 	token := strings.Split(bearToken, " ")
-	client := new(payload_vendorsave)
+	client := new(payload_rfqsave)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -327,22 +181,81 @@ func VendorSave(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"client_hostname":     hostname,
-			"page":                client.Page,
-			"sdata":               client.Sdata,
-			"vendor_search":       client.Vendor_search,
-			"vendor_page":         client.Vendor_page,
-			"vendor_id":           client.Vendor_id,
-			"vendor_idcatevendor": client.Vendor_idcatevendor,
-			"vendor_name":         client.Vendor_name,
-			"vendor_pic":          client.Vendor_pic,
-			"vendor_alamat":       client.Vendor_alamat,
-			"vendor_email":        client.Vendor_email,
-			"vendor_phone1":       client.Vendor_phone1,
-			"vendor_phone2":       client.Vendor_phone2,
-			"vendor_status":       client.Vendor_status,
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"rfq_search":      client.Rfq_search,
+			"rfq_page":        client.Rfq_page,
+			"rfq_id":          client.Rfq_id,
+			"rfq_idbranch":    client.Rfq_idbranch,
+			"rfq_idvendor":    client.Rfq_idvendor,
+			"rfq_idcurr":      client.Rfq_idcurr,
+			"rfq_tipedoc":     client.Rfq_tipedoc,
+			"rfq_listdetail":  string(client.Rfq_listdetail),
+			"rfq_totalitem":   client.Rfq_totalitem,
+			"rfq_subtotal":    client.Rfq_subtotal,
 		}).
-		Post(PATH + "api/vendorsave")
+		Post(PATH + "api/rfqsave")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+}
+func RfqStatusSave(c *fiber.Ctx) error {
+	type payload_prsave struct {
+		Purchaserequest_id     string `json:"purchaserequest_id" `
+		Purchaserequest_status string `json:"purchaserequest_status" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_prsave)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"purchaserequest_id":     client.Purchaserequest_id,
+			"purchaserequest_status": client.Purchaserequest_status,
+		}).
+		Post(PATH + "api/purchaserequeststatussave")
 	if err != nil {
 		log.Println(err.Error())
 	}

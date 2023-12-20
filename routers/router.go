@@ -66,6 +66,7 @@ func Init() *fiber.App {
 	app.Post("/api/catevendor", controllers.Catevendorhome)
 	app.Post("/api/catevendorsave", controllers.CatevendorSave)
 	app.Post("/api/vendor", controllers.Vendorhome)
+	app.Post("/api/vendorshare", controllers.Vendorshare)
 	app.Post("/api/vendorsave", controllers.VendorSave)
 	app.Post("/api/curr", controllers.Currencyhome)
 	app.Post("/api/currsave", controllers.CurrencySave)
@@ -96,6 +97,8 @@ func Init() *fiber.App {
 	app.Post("/api/purchaserequestdetail", controllers.PurchaseRequestdetail)
 	app.Post("/api/purchaserequestsave", controllers.PurchaseRequestSave)
 	app.Post("/api/purchaserequeststatussave", controllers.PurchaseRequestStatusSave)
+	app.Post("/api/rfq", controllers.Rfqhome)
+	app.Post("/api/rfqsave", controllers.RfqSave)
 
 	return app
 }

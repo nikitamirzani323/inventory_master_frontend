@@ -13,15 +13,14 @@
 	export let listHome = []
     export let listCurr = [];
     export let listBranch = [];
-    export let listDepartement = [];
     export let listPage = [];
 	export let totalrecord = 0
     let dispatch = createEventDispatcher();
-	let title_page = "PURCHASE REQUEST"
+	let title_page = "REQUEST FOR QUOTATION"
     let sData = "";
     let myModal_newentry = "";
     let myModal_item = "";
-    let myModal_employee = "";
+    let myModal_vendor = "";
     let flag_id_field = false;
     let flag_btnsave = true;
     let lock_document = false;
@@ -40,7 +39,7 @@
     let update_field = "";
 
     //===EMPLOYEE==
-    let listEmployee = []
+    let listVendor = []
 
     //===ITEM==
     let listitem = []
@@ -289,20 +288,16 @@
         idemployee_field = "";
         nmemployee_field = "";
     };
-    const ShowEmployee = () => {
-        if(iddepartement_field == ""){
-            alert("the Departement is required")
-        }else{
-            call_employee(iddepartement_field)
-            myModal_employee = new bootstrap.Modal(document.getElementById("modalemployee"));
-            myModal_employee.show();
-        }
+    const ShowVendor = () => {
+        call_employee()
+        myModal_vendor = new bootstrap.Modal(document.getElementById("modalvendor"));
+        myModal_vendor.show();
     };
-    const handle_pilihemployee = (e,nm) => {
+    const handle_pilihvendor = (e,nm) => {
         idemployee_field = e
         nmemployee_field = e+" - "+nm
         
-        myModal_employee.hide();
+        myModal_vendor.hide();
     };
     const ShowItem = () => {
         iditem_item_field = ""
@@ -430,32 +425,33 @@
             
         }
     };
-    async function call_employee(iddepart) {
-        listEmployee = [];
-        const res = await fetch("/api/employeeshare", {
+    async function call_employee() {
+        listVendor = [];
+        const res = await fetch("/api/vendorshare", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + token,
         },
         body: JSON.stringify({
-            employee_iddepartement: iddepart,
+            vendor_search: "",
+            vendor_page: 0,
         }),
         });
         const json = await res.json();
         if (json.status == 200) {
         let record = json.record;
         if (record != null) {
-            let totalemployee = record.length;
             let no = 0;
             for (var i = 0; i < record.length; i++) {
             no = no + 1;
-            listEmployee = [
-                ...listEmployee,
+            listVendor = [
+                ...listVendor,
                 {
-                    employee_no: no,
-                    employee_id: record[i]["employee_id"],
-                    employee_name: record[i]["employee_name"],
+                    vendor_no: no,
+                    vendor_id: record[i]["vendor_id"],
+                    vendor_name: record[i]["vendor_name"],
+                    vendor_nmcatevendor: record[i]["vendor_nmcatevendor"],
                 },
             ];
             }
@@ -693,34 +689,7 @@
 	<slot:template slot="body">
         <div class="row">
             <div class="col-md-4">
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Departement</label>
-                    <select
-                        on:change="{handleChangeDepartement}"
-                        bind:value="{iddepartement_field}" 
-                        class="required form-control ">
-                        <option value="">--Please Select--</option>
-                        {#each listDepartement as rec}
-                        <option value="{rec.departement_id}">{rec.departement_name}</option>
-                        {/each}
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Employee</label>
-                    <div class="input-group mb-3">
-                        <input type="text" 
-                            bind:value="{nmemployee_field}" 
-                            disabled
-                            class="form-control" placeholder="Employee" >
-                        <Button on:click={() => {
-                                ShowEmployee();
-                            }} 
-                            button_function="New"
-                            button_title="<i class='bi bi-search'></i>"
-                            button_css="btn-warning"/>
-                    </div>
-                </div>
-                <div class="mb-3">
+                <div class="mb-2">
                     <label for="exampleForm" class="form-label">Branch</label>
                     <select
                         bind:value="{idbranch_field}" 
@@ -731,7 +700,22 @@
                         {/each}
                     </select>
                 </div>
-                <div class="mb-3">
+                <div class="mb-2">
+                    <label for="exampleForm" class="form-label">Vendor</label>
+                    <div class="input-group mb-3">
+                        <input type="text" 
+                            bind:value="{nmemployee_field}" 
+                            disabled
+                            class="form-control" placeholder="Vendor" >
+                        <Button on:click={() => {
+                                ShowVendor();
+                            }} 
+                            button_function="New"
+                            button_title="<i class='bi bi-search'></i>"
+                            button_css="btn-warning"/>
+                    </div>
+                </div>
+                <div class="mb-2">
                     <label for="exampleForm" class="form-label">Currency</label>
                     <select
                         bind:value="{idcurr_field}" 
@@ -742,7 +726,7 @@
                         {/each}
                     </select>
                 </div>
-                <div class="mb-3">
+                <div class="mb-2">
                     <label for="exampleForm" class="form-label">Tipe Document</label>
                     <select
                         class="form-control required"
@@ -751,12 +735,6 @@
                         <option value="ITEM">ITEM</option>
                         <option value="SERVICE">SERVICE</option>
                     </select>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleForm" class="form-label">Remark</label>
-                    <textarea 
-                        style="height: 100px;resize: none;" 
-                        bind:value={remark_field} class="form-control "/>
                 </div>
                 {#if sData != "New"}
                 <div class="mb-3">
@@ -775,7 +753,7 @@
                                 ShowFormDetail();
                             }} 
                             button_function=""
-                            button_title="<i class='bi bi-plus-lg'></i>&nbsp;New Item / Service"
+                            button_title="<i class='bi bi-plus-lg'></i>&nbsp;New Purchase Request"
                             button_css="btn-dark"/>
                     </div>
                     {/if}
@@ -851,9 +829,9 @@
 </Modal>
 
 <Modal
-  modal_id="modalemployee"
+  modal_id="modalvendor"
   modal_size="modal-dialog-centered"
-  modal_title="EMPLOYEE"
+  modal_title="VENDOR"
   modal_body_css="height:500px; overflow-y: scroll;"
   modal_footer_css="padding:5px;"
   modal_footer={false}>
@@ -862,18 +840,18 @@
       <thead>
         <tr>
           <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NIK</th>
+          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CATEGORY VENDOR</th>
           <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">EMPLOYEE</th>
         </tr>
       </thead>
       <tbody>
-        {#each listEmployee as rec}
+        {#each listVendor as rec}
           <tr style="cursor: pointer;" on:click={() => {
-                handle_pilihemployee(rec.employee_id,rec.employee_name);
+                handle_pilihvendor(rec.vendor_id,rec.vendor_name);
             }} >
-            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.employee_no}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.employee_id}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.employee_name}</td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.vendor_no}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.vendor_nmcatevendor}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.vendor_name}</td>
           </tr>
         {/each}
       </tbody>

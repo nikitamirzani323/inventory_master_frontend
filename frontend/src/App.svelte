@@ -17,6 +17,7 @@
 	import Merek from "./pages/merek/Merek.svelte";
 	import Categoryitem from "./pages/categoryitem/Categoryitem.svelte";
 	import Purchaserequest from "./pages/purchaserequest/Purchaserequest.svelte";
+	import Rfq from "./pages/rfq/Rfq.svelte";
 	import Item from "./pages/item/Item.svelte";
 	import Login from "./pages/Login.svelte";
 	import NotFound from "./pages/NotFound.svelte";
@@ -41,6 +42,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/rfq": wrap({
+				component: Rfq,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/merek": wrap({
 				component: Merek,
