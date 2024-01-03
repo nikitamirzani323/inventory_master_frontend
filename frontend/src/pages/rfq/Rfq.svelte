@@ -78,6 +78,7 @@
                             home_id: record[i]["rfq_id"],
                             home_date: record[i]["rfq_date"],
                             home_idbranch: record[i]["rfq_idbranch"],
+                            home_idvendor: record[i]["rfq_idvendor"],
                             home_idcurr: record[i]["rfq_idcurr"],
                             home_nmbranch: record[i]["rfq_nmbranch"],
                             home_nmvendor: record[i]["rfq_nmvendor"],

@@ -99,7 +99,9 @@ func Init() *fiber.App {
 	app.Post("/api/purchaserequestsave", controllers.PurchaseRequestSave)
 	app.Post("/api/purchaserequeststatussave", controllers.PurchaseRequestStatusSave)
 	app.Post("/api/rfq", controllers.Rfqhome)
+	app.Post("/api/rfqdetail", controllers.Rfqdetail)
 	app.Post("/api/rfqsave", controllers.RfqSave)
+	app.Post("/api/rfqstatussave", controllers.RfqStatusSave)
 
 	return app
 }

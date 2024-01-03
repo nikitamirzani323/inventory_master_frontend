@@ -96,7 +96,7 @@
         }
     }
     
-    const NewData = (e,id,iddepartement,idemployee,nmemployee,idbranch,curr,tipedoc,remark,status,create,update) => {
+    const NewData = (e,id,idbranch,idvendor,nmvendor,curr,tipedoc,status,create,update) => {
         sData = e
         if(sData == "New"){
             clearField()
@@ -106,13 +106,11 @@
             lock_document = false;
             flag_id_field = true;
             idrecord = id
-            iddepartement_field = iddepartement;
-            idemployee_field = idemployee;
-            nmemployee_field = idemployee+"-"+nmemployee;
+            idvendor_field = idvendor;
+            nmvendor_field = nmvendor;
             idbranch_field = idbranch;
             idcurr_field = curr;
             tipedoc_field = tipedoc;
-            remark_field = remark;
             status_field = status;
             create_field = create;
             update_field = update;
@@ -227,7 +225,7 @@
             alert(msg)
         }
     }
-    async function handleStatusPurchaseRequest(e) {
+    async function handleStatusRFQ(e) {
         let flag = true
         let msg = ""
         if(idrecord == ""){
@@ -245,15 +243,15 @@
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
             totalitem_field = listdetail_field.length
-            const res = await fetch("/api/purchaserequeststatussave", {
+            const res = await fetch("/api/rfqstatussave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + token,
                 },
                 body: JSON.stringify({
-                    purchaserequest_id: idrecord,
-                    purchaserequest_status: e,
+                    rfq_id: idrecord,
+                    rfq_status: e,
                 }),
             });
             const json = await res.json();
@@ -293,7 +291,7 @@
     }
   
     const ShowVendor = () => {
-        call_employee()
+        call_vendor()
         myModal_vendor = new bootstrap.Modal(document.getElementById("modalvendor"));
         myModal_vendor.show();
     };
@@ -349,7 +347,7 @@
         
 
         for(let i=0;i<listdetail_field.length;i++){
-            if(listdetail_field[i].detail_id == pr_iddocument){
+            if(listdetail_field[i].detail_iditem == pr_item_iditem){
                 flag = false
                 msg += "Duplicate item\n"
                 break;
@@ -473,7 +471,7 @@
             }
         }
     }
-    async function call_employee() {
+    async function call_vendor() {
         listVendor = [];
         const res = await fetch("/api/vendorshare", {
         method: "POST",
@@ -509,14 +507,14 @@
     async function call_detail(idpurchase) {
         listdetail_field = [];
         subtotal_detail = 0;
-        const res = await fetch("/api/purchaserequestdetail", {
+        const res = await fetch("/api/rfqdetail", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
-                purchaserequest_id: idpurchase,
+                rfq_id: idpurchase,
             }),
         });
         const json = await res.json();
@@ -526,18 +524,22 @@
                 let no = 0;
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
-                    let total = parseFloat(record[i]["purchaserequestdetail_qty"]) * parseFloat(record[i]["purchaserequestdetail_price"])
+                    let total = parseFloat(record[i]["rfqdetail_qty"]) * parseFloat(record[i]["rfqdetail_price"])
                     subtotal_detail = subtotal_detail + total;
                     listdetail_field = [
                         ...listdetail_field,
                         {
                             detail_no: no,
-                            detail_iditem: record[i]["purchaserequestdetail_iditem"],
-                            detail_nmitem: record[i]["purchaserequestdetail_nmitem"],
-                            detail_purpose: record[i]["purchaserequestdetail_purpose"],
-                            detail_qty: record[i]["purchaserequestdetail_qty"],
-                            detail_iduom: record[i]["purchaserequestdetail_iduom"],
-                            detail_price: record[i]["purchaserequestdetail_price"],
+                            detail_id: record[i]["rfqdetail_id"],
+                            detail_document: record[i]["rfqdetail_idpurchaserequest"],
+                            detail_departement: record[i]["rfqdetail_nmdepartement"],
+                            detail_employee: record[i]["rfqdetail_nmemployee"],
+                            detail_iditem: record[i]["rfqdetail_iditem"],
+                            detail_nmitem: record[i]["rfqdetail_nmitem"],
+                            detail_purpose: record[i]["rfqdetail_descitem"],
+                            detail_qty: record[i]["rfqdetail_qty"],
+                            detail_iduom: record[i]["rfqdetail_iduom"],
+                            detail_price: record[i]["rfqdetail_price"],
                             detail_total: total,
                         },
                     ];
@@ -637,7 +639,7 @@
                                 <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DATE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TIPE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">BRANCH</th>
-                                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VENDOR</th>
+                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VENDOR</th>
                                 <th NOWRAP width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TOTAL ITEM</th>
                                 <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CURR</th>
                                 <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">SUBTOTAL</th>
@@ -649,9 +651,9 @@
                                 <tr>
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i on:click={() => {
-                                            //e,id,iddepartement,idemployee,nmemployee,idbranch,curr,tipedoc,remark,status,create,update
-                                                NewData("Edit",rec.home_id, rec.home_iddepartement,rec.home_idemployee,rec.home_nmemployee,
-                                                rec.home_idbranch,rec.home_idcurr,rec.home_tipedoc,rec.home_remark,rec.home_status,
+                                            //e,id,idbranch,nmvendor,curr,tipedoc,status,create,update
+                                                NewData("Edit",rec.home_id,rec.home_idbranch,rec.home_idvendor,
+                                                rec.home_nmvendor,rec.home_idcurr,rec.home_tipedoc,rec.home_status,
                                                 rec.home_create, rec.home_update);
                                             }} class="bi bi-pencil"></i>
                                     </td>
@@ -790,7 +792,7 @@
                                 <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                     {rec.detail_document }<br />
                                     {rec.detail_departement } / {rec.detail_employee}<br />
-                                    {rec.detail_iditem +"-"+ rec.detail_nmitem}
+                                    {rec.detail_iditem +" - "+ rec.detail_nmitem}
                                 </td>
                                 <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.detail_qty)}</td>
                                 <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.detail_iduom}</td>
@@ -822,13 +824,13 @@
         {/if}
         {#if status_field == "OPEN"}
             <Button on:click={() => {
-                    handleStatusPurchaseRequest("CANCEL");
+                    handleStatusRFQ("CANCEL");
                 }} 
                 button_function="PROCESS"
                 button_title="<i class='bi bi-trash'></i>&nbsp;&nbsp;Cancel"
                 button_css="btn-danger"/>
             <Button on:click={() => {
-                    handleStatusPurchaseRequest("PROCESS");
+                    handleStatusRFQ("PROCESS");
                 }} 
                 button_function="PROCESS"
                 button_title="<i class='bi bi-arrow-right'></i>&nbsp;&nbsp;Process"

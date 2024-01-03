@@ -87,13 +87,13 @@ func Rfqhome(c *fiber.Ctx) error {
 	}
 }
 func Rfqdetail(c *fiber.Ctx) error {
-	type payload_prhome struct {
-		Purchaserequest_id string `json:"purchaserequest_id"`
+	type payload_rfqhome struct {
+		Rfq_id string `json:"rfq_id"`
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
 	token := strings.Split(bearToken, " ")
-	client := new(payload_prhome)
+	client := new(payload_rfqhome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -112,9 +112,9 @@ func Rfqdetail(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"purchaserequest_id": client.Purchaserequest_id,
+			"rfq_id": client.Rfq_id,
 		}).
-		Post(PATH + "api/purchaserequestdetail")
+		Post(PATH + "api/rfqdetail")
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -226,14 +226,14 @@ func RfqSave(c *fiber.Ctx) error {
 	}
 }
 func RfqStatusSave(c *fiber.Ctx) error {
-	type payload_prsave struct {
-		Purchaserequest_id     string `json:"purchaserequest_id" `
-		Purchaserequest_status string `json:"purchaserequest_status" `
+	type payload_rfqsave struct {
+		Rfq_id     string `json:"rfq_id" `
+		Rfq_status string `json:"rfq_status" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
 	token := strings.Split(bearToken, " ")
-	client := new(payload_prsave)
+	client := new(payload_rfqsave)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -252,10 +252,10 @@ func RfqStatusSave(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"purchaserequest_id":     client.Purchaserequest_id,
-			"purchaserequest_status": client.Purchaserequest_status,
+			"rfq_id":     client.Rfq_id,
+			"rfq_status": client.Rfq_status,
 		}).
-		Post(PATH + "api/purchaserequeststatussave")
+		Post(PATH + "api/rfqstatussave")
 	if err != nil {
 		log.Println(err.Error())
 	}
