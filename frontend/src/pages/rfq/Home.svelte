@@ -19,7 +19,8 @@
 	let title_page = "REQUEST FOR QUOTATION"
     let sData = "";
     let myModal_newentry = "";
-    let myModal_item = "";
+    let myModal_pr = "";
+    let myModal_cruddetail = "";
     let myModal_vendor = "";
     let flag_id_field = false;
     let flag_btnsave = true;
@@ -27,6 +28,8 @@
     let iddepartement_field = "";
     let idemployee_field = "";
     let nmemployee_field = "";
+    let idvendor_field = "";
+    let nmvendor_field = "";
     let idbranch_field = "";
     let idcurr_field = "";
     let tipedoc_field = "";
@@ -54,6 +57,21 @@
     let total_item_field = 0
     let purpose_item_field = ""
     let subtotal_detail = 0
+
+    //PURCAHSE_REQUEST
+    let listpurchaserequest = [];
+    let pr_iddocument = "";
+    let pr_document = "";
+    let pr_departement = "";
+    let pr_employee = "";
+    let pr_item_iditem = "";
+    let pr_item_nmitem = "";
+    let pr_item_decp = "";
+    let pr_item_display = "";
+    let pr_item_qty = 0;
+    let pr_item_uom = "";
+    let pr_item_price = 0;
+
 
     let idrecord = "";
     let pagingnow = 0;
@@ -118,13 +136,9 @@
                 flag = false
                 msg += "The Branch is required\n"
             }
-            if(iddepartement_field == ""){
+            if(idvendor_field == ""){
                 flag = false
-                msg += "The Departement is required\n"
-            }
-            if(idemployee_field == ""){
-                flag = false
-                msg += "The Employee is required\n"
+                msg += "The Vendor is required\n"
             }
             if(idcurr_field == ""){
                 flag = false
@@ -147,13 +161,9 @@
                 flag = false
                 msg += "The Branch is required\n"
             }
-            if(iddepartement_field == ""){
+            if(idvendor_field == ""){
                 flag = false
-                msg += "The Departement is required\n"
-            }
-            if(idemployee_field == ""){
-                flag = false
-                msg += "The Employee is required\n"
+                msg += "The Vendor is required\n"
             }
             if(idcurr_field == ""){
                 flag = false
@@ -174,7 +184,7 @@
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
             totalitem_field = listdetail_field.length
-            const res = await fetch("/api/purchaserequestsave", {
+            const res = await fetch("/api/rfqsave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -183,18 +193,16 @@
                 body: JSON.stringify({
                     sdata: sData,
                     page:"CURR-SAVE",
-                    purchaserequest_search: searchHome,
-                    purchaserequest_page: parseInt(pagingnow),
-                    purchaserequest_id: idrecord,
-                    purchaserequest_idbranch: idbranch_field,
-                    purchaserequest_iddepartement: iddepartement_field,
-                    purchaserequest_idemployee: idemployee_field,
-                    purchaserequest_idcurr: idcurr_field,
-                    purchaserequest_tipedoc: tipedoc_field,
-                    purchaserequest_listdetail: listdetail_field,
-                    purchaserequest_totalitem: parseFloat(totalitem_field),
-                    purchaserequest_subtotal: parseFloat(subtotal_detail),
-                    purchaserequest_remark: remark_field,
+                    rfq_search: searchHome,
+                    rfq_page: parseInt(pagingnow),
+                    rfq_id: idrecord,
+                    rfq_idbranch: idbranch_field,
+                    rfq_idvendor: idvendor_field,
+                    rfq_idcurr: idcurr_field,
+                    rfq_tipedoc: tipedoc_field,
+                    rfq_listdetail: listdetail_field,
+                    rfq_totalitem: parseFloat(totalitem_field),
+                    rfq_subtotal: parseFloat(subtotal_detail),
                 }),
             });
             const json = await res.json();
@@ -283,60 +291,46 @@
         create_field = "";
         update_field = "";
     }
-    const handleChangeDepartement = (e) => {
-        // alert(e.target.value)
-        idemployee_field = "";
-        nmemployee_field = "";
-    };
+  
     const ShowVendor = () => {
         call_employee()
         myModal_vendor = new bootstrap.Modal(document.getElementById("modalvendor"));
         myModal_vendor.show();
     };
     const handle_pilihvendor = (e,nm) => {
-        idemployee_field = e
-        nmemployee_field = e+" - "+nm
-        
+        idvendor_field = e;
+        nmvendor_field = nm;
+
         myModal_vendor.hide();
     };
-    const ShowItem = () => {
-        iditem_item_field = ""
-        nmitem_item_field = ""
-        iduom_item_field = ""
-        listuom = []
-        purpose_item_field = ""
-        qty_item_field = 0
-        price_item_field = 0
-        call_item("")
-        myModal_item = new bootstrap.Modal(document.getElementById("modalitem"));
-        myModal_item.show();
-    };
-    const handle_pilihitem = (e,nm,uom) => {
-        iditem_item_field = e
-        nmitem_item_field = nm
-        nmitemdisplay_item_field = e+" - "+nm
-        iduom_item_field = ""
-        listuom = []
-        for(let i=0;i<uom.length;i++){
-            listuom = [
-                    ...listuom,
-                    {
-                        itemuom_iduom: uom[i]["itemuom_iduom"],
-                    },
-                ];
-        }
+   
+    const handle_pilih_pr = (idprdetail,idpr,departement,employee,iditem,nmitem,descp,qty,iduom,price) => {
+        pr_iddocument = idprdetail;
+        pr_document = idpr;
+        pr_departement = departement;
+        pr_employee = employee;
+        pr_item_iditem = iditem;
+        pr_item_nmitem = nmitem;
+        pr_item_decp = descp;
+        pr_item_display = iditem+" - "+nmitem;
+        pr_item_qty = qty;
+        pr_item_uom = iduom;
+        pr_item_price = price;
+        qty_item_field = qty
+        price_item_field = price
 
-     
-        myModal_item.hide();
+        myModal_cruddetail = new bootstrap.Modal(document.getElementById("modalcruddetail"));
+        myModal_cruddetail.show();
+      
     };
     const handleListDetail = () => {
         let flag = true;
         let msg = "";
-        if(iditem_item_field == "" || nmitem_item_field == ""){
+        if(pr_item_iditem == "" || pr_item_nmitem == ""){
             flag = false
             msg += "The Item is required\n"
         }
-        if(iduom_item_field == ""){
+        if(pr_item_uom == ""){
             flag = false
             msg += "The Uom is required\n"
         }
@@ -344,13 +338,18 @@
             flag = false
             msg += "The Qty is required\n"
         }
+        if(parseFloat(qty_item_field)>parseFloat(pr_item_qty)){
+            flag = false
+            msg += "The Qty exceeds purchase request Qty is required\n"
+        }
         if(parseFloat(price_item_field)<1){
             flag = false
             msg += "The Price is required\n"
         }
+        
 
         for(let i=0;i<listdetail_field.length;i++){
-            if(listdetail_field[i].detail_iditem == iditem_item_field){
+            if(listdetail_field[i].detail_id == pr_iddocument){
                 flag = false
                 msg += "Duplicate item\n"
                 break;
@@ -364,25 +363,25 @@
             listdetail_field = [
                 ...listdetail_field,
                 {
-                    detail_iditem: iditem_item_field,
-                    detail_nmitem: nmitem_item_field,
+                    detail_id: pr_iddocument,
+                    detail_document: pr_document,
+                    detail_departement: pr_departement,
+                    detail_employee: pr_employee,
+                    detail_iditem: pr_item_iditem,
+                    detail_nmitem: pr_item_nmitem,
+                    detail_descpitem: pr_item_decp,
                     detail_qty: parseFloat(qty_item_field),
-                    detail_iduom: iduom_item_field,
+                    detail_iduom: pr_item_uom,
                     detail_price: parseFloat(price_item_field),
                     detail_total: parseFloat(total),
-                    detail_purpose: purpose_item_field,
                 },
             ];
 
-            listuom = []
-            iditem_item_field = ""
-            nmitemdisplay_item_field = ""
-            nmitem_item_field = ""
-            desc_item_field = ""
+         
             qty_item_field = 0
             iduom_item_field = ""
             price_item_field = 0
-            purpose_item_field = ""
+            myModal_cruddetail.hide();
         }else{
             alert(msg)
         }
@@ -400,31 +399,80 @@
             listdetail_field = [
             ...listdetail_field,
                 {
+                    detail_id: temp[i].detail_id,
+                    detail_document: temp[i].detail_document,
+                    detail_departement: temp[i].detail_departement,
+                    detail_employee: temp[i].detail_employee,
                     detail_iditem: temp[i].detail_iditem,
                     detail_nmitem: temp[i].detail_nmitem,
+                    detail_descpitem: temp[i].detail_descpitem,
                     detail_qty: temp[i].detail_qty,
                     detail_iduom: temp[i].detail_iduom,
                     detail_price: temp[i].detail_price,
                     detail_total: total,
-                    detail_purpose: temp[i].detail_purpose,
+
                 },
             ];
         }
     }
-    const ShowFormDetail = () => {
-        if(tipedoc_field == ""){
-            alert("the Tipe Document is required")
+    const ShowFormPRDETAIL = () => {
+        if(tipedoc_field == "" || idbranch_field == ""){
+            alert("the Tipe Document and Branch is required")
         }else{
-            if(tipedoc_field == "ITEM"){
-                myModal_newentry = new bootstrap.Modal(document.getElementById("modalcruddetail"));
-                myModal_newentry.show();
-            }else{
-                myModal_newentry = new bootstrap.Modal(document.getElementById("modalcruddetailservice"));
-                myModal_newentry.show();
-            }
+            call_purchaserequest(tipedoc_field,idbranch_field)
+
+            myModal_pr = new bootstrap.Modal(document.getElementById("modalprdetail"));
+            myModal_pr.show();
             
         }
     };
+    async function call_purchaserequest(tipedoc,idbranch) {
+        listpurchaserequest = [];
+        const res = await fetch("/api/purchaserequestdetailview", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                purchaserequest_tipedoc: tipedoc,
+                purchaserequest_idbranch: idbranch,
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                let qty = 0;
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    qty = parseFloat(record[i]["prdetailview_qty"]) - parseFloat(record[i]["prdetailview_qty_po"])
+                    if(qty > 0){
+                        listpurchaserequest = [
+                            ...listpurchaserequest,
+                            {
+                                prdetailview_no: no,
+                                prdetailview_id: record[i]["prdetailview_id"],
+                                prdetailview_idpurchaserequest: record[i]["prdetailview_idpurchaserequest"],
+                                prdetailview_date: record[i]["prdetailview_date"],
+                                prdetailview_iditem: record[i]["prdetailview_iditem"],
+                                prdetailview_nmbranch: record[i]["prdetailview_nmbranch"],
+                                prdetailview_nmdepartement: record[i]["prdetailview_nmdepartement"],
+                                prdetailview_nmemployee: record[i]["prdetailview_nmemployee"],
+                                prdetailview_nmitem: record[i]["prdetailview_nmitem"],
+                                prdetailview_descitem: record[i]["prdetailview_descitem"],
+                                prdetailview_qty: qty,
+                                prdetailview_price: record[i]["prdetailview_price"],
+                                prdetailview_iduom: record[i]["prdetailview_iduom"],
+                            },
+                        ];
+                    }
+                    
+                }
+            }
+        }
+    }
     async function call_employee() {
         listVendor = [];
         const res = await fetch("/api/vendorshare", {
@@ -456,42 +504,6 @@
             ];
             }
         }
-        }
-    }
-    async function call_item(searchitem) {
-        listitem = [];
-        const res = await fetch("/api/itemshare", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify({
-                item_search: searchitem,
-                item_page: 0,
-            }),
-        });
-        const json = await res.json();
-        if (json.status == 200) {
-            let record = json.record;
-            if (record != null) {
-                let no = 0;
-                for (var i = 0; i < record.length; i++) {
-                no = no + 1;
-                listitem = [
-                    ...listitem,
-                    {
-                        itemshare_no: no,
-                        itemshare_id: record[i]["itemshare_id"],
-                        itemshare_nmcateitem: record[i]["itemshare_nmcateitem"],
-                        itemshare_name: record[i]["itemshare_name"],
-                        itemshare_descp: record[i]["itemshare_descp"],
-                        itemshare_urlimg: record[i]["itemshare_urlimg"],
-                        itemshare_uom: record[i]["itemshare_uom"],
-                    },
-                ];
-                }
-            }
         }
     }
     async function call_detail(idpurchase) {
@@ -625,8 +637,7 @@
                                 <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DATE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TIPE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">BRANCH</th>
-                                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPARTEMENT</th>
-                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">EMPLOYEE</th>
+                                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VENDOR</th>
                                 <th NOWRAP width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TOTAL ITEM</th>
                                 <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CURR</th>
                                 <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">SUBTOTAL</th>
@@ -654,11 +665,10 @@
                                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_date}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_tipedoc}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmbranch}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmdepartement}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmemployee}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmvendor}</td>
                                     <td  style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.home_totalitem)}</td>
                                     <td  style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_idcurr}</td>
-                                    <td  style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.home_totalpr)}</td>
+                                    <td  style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.home_totalrfq)}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -690,6 +700,16 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="mb-2">
+                    <label for="exampleForm" class="form-label">Tipe Document</label>
+                    <select
+                        class="form-control required"
+                        bind:value={tipedoc_field}>
+                        <option value="">--Please Select--</option>
+                        <option value="ITEM">ITEM</option>
+                        <option value="SERVICE">SERVICE</option>
+                    </select>
+                </div>
+                <div class="mb-2">
                     <label for="exampleForm" class="form-label">Branch</label>
                     <select
                         bind:value="{idbranch_field}" 
@@ -704,7 +724,7 @@
                     <label for="exampleForm" class="form-label">Vendor</label>
                     <div class="input-group mb-3">
                         <input type="text" 
-                            bind:value="{nmemployee_field}" 
+                            bind:value="{nmvendor_field}" 
                             disabled
                             class="form-control" placeholder="Vendor" >
                         <Button on:click={() => {
@@ -726,16 +746,7 @@
                         {/each}
                     </select>
                 </div>
-                <div class="mb-2">
-                    <label for="exampleForm" class="form-label">Tipe Document</label>
-                    <select
-                        class="form-control required"
-                        bind:value={tipedoc_field}>
-                        <option value="">--Please Select--</option>
-                        <option value="ITEM">ITEM</option>
-                        <option value="SERVICE">SERVICE</option>
-                    </select>
-                </div>
+                
                 {#if sData != "New"}
                 <div class="mb-3">
                     <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
@@ -750,7 +761,7 @@
                     {#if lock_document}
                     <div class="float-end">
                         <Button on:click={() => {
-                                ShowFormDetail();
+                                ShowFormPRDETAIL();
                             }} 
                             button_function=""
                             button_title="<i class='bi bi-plus-lg'></i>&nbsp;New Purchase Request"
@@ -777,11 +788,9 @@
                                     }} class="bi bi-trash"></i>
                                 </td>
                                 <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                    {rec.detail_document }<br />
+                                    {rec.detail_departement } / {rec.detail_employee}<br />
                                     {rec.detail_iditem +"-"+ rec.detail_nmitem}
-                                    {#if rec.detail_purpose != ""}
-                                        <br />
-                                        PURPOSE : {@html rec.detail_purpose}
-                                    {/if}
                                 </td>
                                 <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.detail_qty)}</td>
                                 <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.detail_iduom}</td>
@@ -859,6 +868,58 @@
   </slot:template>
 </Modal>
 
+
+<Modal
+  modal_id="modalprdetail"
+  modal_size="modal-dialog-centered modal-xl"
+  modal_title="PURCHASE REQUEST"
+  modal_body_css="height:500px; overflow-y: scroll;"
+  modal_footer_css="padding:5px;"
+  modal_footer={false}>
+  <slot:template slot="body">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DOCUMENT</th>
+          <th width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DATE</th>
+          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">BRANCH</th>
+          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPARTEMENT</th>
+          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">EMPLOYEE</th>
+          <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DESCP</th>
+          <th width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">QTY</th>
+          <th width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UOM</th>
+          <th width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PRICE</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each listpurchaserequest as rec}
+          <tr style="cursor: pointer;" on:click={() => {
+                //idprdetail,idpr,departement,employee,iditem,nmitem,descp,qty,iduom,price
+                handle_pilih_pr(rec.prdetailview_id,rec.prdetailview_idpurchaserequest,
+                    rec.prdetailview_nmdepartement,rec.prdetailview_nmemployee,
+                    rec.prdetailview_iditem,rec.prdetailview_nmitem,rec.prdetailview_descitem,
+                    rec.prdetailview_qty,rec.prdetailview_iduom,rec.prdetailview_price);
+            }} >
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_no}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_idpurchaserequest}</td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_date}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_nmbranch}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_nmdepartement}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_nmemployee}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                {rec.prdetailview_iditem} - {rec.prdetailview_nmitem}
+            </td>
+            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.prdetailview_qty)}</td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_iduom}</td>
+            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.prdetailview_price)}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </slot:template>
+</Modal>
+
 <Modal
 	modal_id="modalcruddetail"
 	modal_size="modal-dialog-centered "
@@ -867,30 +928,17 @@
 	modal_footer={true}>
 	<slot:template slot="body">
         <div class="mb-0">
-            <label for="exampleForm" class="form-label">Item</label>
-            <div class="input-group mb-3">
-                <input type="text" 
-                    bind:value={nmitemdisplay_item_field}
-                    disabled
-                    class="form-control" placeholder="Item" >
-                <Button on:click={() => {
-                        ShowItem();
-                    }} 
-                    button_function="New"
-                    button_title="<i class='bi bi-search'></i>"
-                    button_css="btn-warning"/>
+            <div class="alert alert-light" role="alert" style="font-size: 12px;">
+                {pr_document}<br />
+                {pr_item_display}<br />
             </div>
         </div>
         <div class="mb-0">
             <label for="exampleForm" class="form-label">Uom</label>
-            <select
-                bind:value="{iduom_item_field}" 
-                class="required form-control ">
-                <option value="">--Please Select--</option>
-                {#each listuom as rec}
-                <option value="{rec.itemuom_iduom}">{rec.itemuom_iduom}</option>
-                {/each}
-            </select>
+            <input type="text" 
+                bind:value={pr_item_uom}
+                disabled
+                class="form-control" placeholder="UOM" >
         </div>
         <div class="mb-0">
             <label for="exampleForm" class="form-label">Qty</label>
@@ -910,12 +958,6 @@
                 input_maxlength="10"
                 input_placeholder="Price"/>
         </div>
-        <div class="mb-0">
-            <label for="exampleForm" class="form-label">Purpose</label>
-            <textarea 
-                style="height: 100px;resize: none;" 
-                bind:value={purpose_item_field} class="form-control "/>
-        </div>
 	</slot:template>
 	<slot:template slot="footer">
         {#if flag_btnsave}
@@ -929,94 +971,5 @@
 	</slot:template>
 </Modal>
 
-<Modal
-	modal_id="modalcruddetailservice"
-	modal_size="modal-dialog-centered "
-	modal_title="Detail/New"
-    modal_footer_css="padding:5px;"
-	modal_footer={true}>
-	<slot:template slot="body">
-        <div class="mb-0">
-            <label for="exampleForm" class="form-label">Description</label>
-            <textarea 
-                style="height: 100px;resize: none;" 
-                bind:value={desc_item_field} class="form-control required"/>
-        </div>
-        <div class="mb-0">
-            <label for="exampleForm" class="form-label">Uom</label>
-            <select
-                bind:value="{iduom_item_field}" 
-                class="required form-control ">
-                <option value="">--Please Select--</option>
-                {#each listuom as rec}
-                <option value="{rec.itemuom_iduom}">{rec.itemuom_iduom}</option>
-                {/each}
-            </select>
-        </div>
-        <div class="mb-0">
-            <label for="exampleForm" class="form-label">Qty</label>
-            <Input_custom
-                bind:value={qty_item_field}
-                input_tipe="number_standart"
-                input_required="required"
-                input_maxlength="10"
-                input_placeholder="Qty"/>
-        </div>
-        <div class="mb-0">
-            <label for="exampleForm" class="form-label">price</label>
-            <Input_custom
-                bind:value={price_item_field}
-                input_tipe="number_standart"
-                input_required="required"
-                input_maxlength="10"
-                input_placeholder="Price"/>
-        </div>
-        <div class="mb-0">
-            <label for="exampleForm" class="form-label">Purpose</label>
-            <textarea 
-                style="height: 100px;resize: none;" 
-                bind:value={purpose_item_field} class="form-control "/>
-        </div>
-	</slot:template>
-	<slot:template slot="footer">
-        {#if flag_btnsave}
-        <Button on:click={() => {
-                handleListDetail();
-            }} 
-            button_function="SAVE"
-            button_title="<i class='bi bi-save'></i>&nbsp;&nbsp;Save"
-            button_css="btn-warning"/>
-        {/if}
-	</slot:template>
-</Modal>
 
-<Modal
-  modal_id="modalitem"
-  modal_size="modal-dialog-centered modal-lg"
-  modal_title="ITEM"
-  modal_body_css="height:500px; overflow-y: scroll;"
-  modal_footer_css="padding:5px;"
-  modal_footer={false}>
-  <slot:template slot="body">
-    <table class="table table-sm">
-      <thead>
-        <tr>
-          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CODE</th>
-          <th width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CATEGORY</th>
-          <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">ITEM</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each listitem as rec}
-          <tr style="cursor:pointer;" on:click={() => {
-                handle_pilihitem(rec.itemshare_id,rec.itemshare_name,rec.itemshare_uom);
-            }}>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};text-decoration:underline;color:blue;">{rec.itemshare_id}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.itemshare_nmcateitem}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.itemshare_name}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </slot:template>
-</Modal>
+
