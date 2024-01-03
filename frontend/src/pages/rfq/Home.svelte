@@ -22,12 +22,8 @@
     let myModal_pr = "";
     let myModal_cruddetail = "";
     let myModal_vendor = "";
-    let flag_id_field = false;
     let flag_btnsave = true;
     let lock_document = false;
-    let iddepartement_field = "";
-    let idemployee_field = "";
-    let nmemployee_field = "";
     let idvendor_field = "";
     let nmvendor_field = "";
     let idbranch_field = "";
@@ -35,8 +31,6 @@
     let tipedoc_field = "";
     let listdetail_field = [];
     let totalitem_field = 0;
-    let subtotal_field = 0;
-    let remark_field = "";
     let status_field = "";
     let create_field = "";
     let update_field = "";
@@ -45,17 +39,8 @@
     let listVendor = []
 
     //===ITEM==
-    let listitem = []
-    let listuom = []
-    let iditem_item_field = ""
-    let nmitemdisplay_item_field = ""
-    let nmitem_item_field = ""
-    let desc_item_field = ""
     let qty_item_field = 0
-    let iduom_item_field = ""
     let price_item_field = 0
-    let total_item_field = 0
-    let purpose_item_field = ""
     let subtotal_detail = 0
 
     //PURCAHSE_REQUEST
@@ -104,7 +89,6 @@
         }else{
             call_detail(id)
             lock_document = false;
-            flag_id_field = true;
             idrecord = id
             idvendor_field = idvendor;
             nmvendor_field = nmvendor;
@@ -257,6 +241,57 @@
             const json = await res.json();
             if (json.status == 200) {
                 flag_btnsave = true;
+                status_field = "";
+                msgloader = json.message;
+                RefreshHalaman()
+            } else if(json.status == 403){
+                flag_btnsave = true;
+                alert(json.message)
+            } else {
+                flag_btnsave = true;
+                msgloader = json.message;
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
+    async function handleCreatePO() {
+        alert(idrecord)
+        let flag = true
+        let msg = ""
+        if(idrecord == ""){
+            flag = false
+            msg += "The Document is required\n"
+        }
+        if(e == ""){
+            flag = false
+            msg += "The Branch is required\n"
+        }
+       
+        
+        if(flag){
+            flag_btnsave = false;
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            totalitem_field = listdetail_field.length
+            const res = await fetch("/api/asdasd", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    rfq_id: idrecord,
+                    rfq_status: e,
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                flag_btnsave = true;
+                status_field = "";
                 msgloader = json.message;
                 RefreshHalaman()
             } else if(json.status == 403){
@@ -283,7 +318,6 @@
         idcurr_field = "";
         tipedoc_field = "";
         listdetail_field = [];
-        remark_field = "";
         subtotal_detail = 0;
         status_field = "";
         create_field = "";
@@ -377,7 +411,6 @@
 
          
             qty_item_field = 0
-            iduom_item_field = ""
             price_item_field = 0
             myModal_cruddetail.hide();
         }else{
@@ -701,6 +734,15 @@
 	<slot:template slot="body">
         <div class="row">
             <div class="col-md-4">
+                {#if sData!="New"}
+                <div class="mb-2">
+                    <label for="exampleForm" class="form-label">Document</label>
+                    <input type="text" 
+                            bind:value="{idrecord}" 
+                            disabled
+                            class="form-control" placeholder="Document" >
+                </div>
+                {/if}
                 <div class="mb-2">
                     <label for="exampleForm" class="form-label">Tipe Document</label>
                     <select
@@ -834,6 +876,20 @@
                 }} 
                 button_function="PROCESS"
                 button_title="<i class='bi bi-arrow-right'></i>&nbsp;&nbsp;Process"
+                button_css="btn-info"/>
+        {/if}
+        {#if status_field == "PROCESS"}
+            <Button on:click={() => {
+                    handleStatusRFQ("CANCEL");
+                }} 
+                button_function="PROCESS"
+                button_title="<i class='bi bi-trash'></i>&nbsp;&nbsp;Cancel"
+                button_css="btn-danger"/>
+            <Button on:click={() => {
+                    handleCreatePO("PROCESS");
+                }} 
+                button_function="PROCESS"
+                button_title="<i class='bi bi-arrow-right'></i>&nbsp;&nbsp;Create PO"
                 button_css="btn-info"/>
         {/if}
 	</slot:template>
