@@ -311,9 +311,6 @@
     function clearField(){
         idrecord = "";
         lock_document = false;
-        iddepartement_field = "";
-        idemployee_field = "";
-        nmemployee_field = "";
         idbranch_field = "";
         idcurr_field = "";
         tipedoc_field = "";
@@ -911,8 +908,8 @@
       <thead>
         <tr>
           <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CATEGORY VENDOR</th>
-          <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">EMPLOYEE</th>
+          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CATEGORY </th>
+          <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">VENDOR</th>
         </tr>
       </thead>
       <tbody>
@@ -946,8 +943,7 @@
           <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DOCUMENT</th>
           <th width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DATE</th>
           <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">BRANCH</th>
-          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPARTEMENT</th>
-          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">EMPLOYEE</th>
+          <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPARTEMENT / EMPLOYEE</th>
           <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DESCP</th>
           <th width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">QTY</th>
           <th width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UOM</th>
@@ -967,8 +963,7 @@
             <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_idpurchaserequest}</td>
             <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_date}</td>
             <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_nmbranch}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_nmdepartement}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_nmemployee}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prdetailview_nmdepartement} / {rec.prdetailview_nmemployee}</td>
             <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                 {rec.prdetailview_iditem} - {rec.prdetailview_nmitem}
             </td>
