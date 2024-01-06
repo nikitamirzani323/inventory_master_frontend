@@ -815,7 +815,9 @@
                     <table class="table table-sm">
                         <thead>
                             <tr>
+                                {#if lock_document}
                                 <th NOWRAP width="1%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
+                                {/if}
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DESCRIPTION</th>
                                 <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">QTY</th>
                                 <th NOWRAP width="15%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UOM</th>
@@ -826,11 +828,13 @@
                         <tbody>
                         {#each listdetail_field as rec}
                             <tr>
+                                {#if lock_document}
                                 <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font}; cursor:pointer;">
                                     <i on:click={() => {
                                         handleDeleteListDetail(rec.detail_iditem);
                                     }} class="bi bi-trash"></i>
                                 </td>
+                                {/if}
                                 <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                     {rec.detail_document }<br />
                                     {rec.detail_departement } / {rec.detail_employee}<br />
