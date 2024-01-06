@@ -65,6 +65,10 @@
     let css_loader = "display: none;";
     let msgloader = "";
 
+    let page_left = "col-md-4"
+    let page_right = "col-md-8"
+    let page_toggle = true;
+
     $: {
         if (searchHome) {
             filterHome = listHome.filter(
@@ -80,7 +84,19 @@
             filterHome = [...listHome];
         }
     }
-    
+    const pageFullScreen = () =>{
+        
+        if(page_toggle){
+            page_left = "d-none"
+            page_right = "col-md-12"
+            page_toggle = false
+        }else{
+            page_left = "col-md-4"
+            page_right = "col-md-8"
+            page_toggle = true
+        }   
+        
+    }
     const NewData = (e,id,idbranch,idvendor,nmvendor,curr,tipedoc,status,create,update) => {
         sData = e
         if(sData == "New"){
@@ -730,7 +746,7 @@
 	modal_footer={true}>
 	<slot:template slot="body">
         <div class="row">
-            <div class="col-md-4">
+            <div class="{page_left}">
                 {#if sData!="New"}
                 <div class="mb-2">
                     <label for="exampleForm" class="form-label">Document</label>
@@ -797,8 +813,11 @@
                 </div>
                 {/if}
             </div>
-            <div class="col-md-8">
+            <div class="{page_right}">
                 <div class="table-responsive border border-primary p-2" style="height: 550px;">
+                    <i on:click={() => {
+                        pageFullScreen();
+                    }} class="bi bi-list" style="cursor: pointer;"></i>
                     {#if lock_document}
                     <div class="float-end">
                         <Button on:click={() => {
