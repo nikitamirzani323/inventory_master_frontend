@@ -22,6 +22,7 @@
     let myModal_pr = "";
     let myModal_cruddetail = "";
     let myModal_vendor = "";
+    let myModal_formpo = "";
     let flag_btnsave = true;
     let lock_document = false;
     let idvendor_field = "";
@@ -41,6 +42,7 @@
     //===ITEM==
     let qty_item_field = 0
     let price_item_field = 0
+    let totalitem_detail = 0
     let subtotal_detail = 0
 
     //PURCAHSE_REQUEST
@@ -57,6 +59,18 @@
     let pr_item_uom = "";
     let pr_item_price = 0;
 
+    //PO
+    let sDataPO = "";
+    let po_discount = 0;
+    let po_dpp = 0;
+    let po_ppn = 0.0;
+    let po_ppn_persen = 0.0;
+    let po_ppn_total = 0;
+    let po_pph = 0.0;
+    let po_pph_persen = 0.0;
+    let po_pph_total = 0;
+    let po_dpp_tax = 0;
+    let po_grandtotal = 0;
 
     let idrecord = "";
     let pagingnow = 0;
@@ -85,7 +99,6 @@
         }
     }
     const pageFullScreen = () =>{
-        
         if(page_toggle){
             page_left = "d-none"
             page_right = "col-md-12"
@@ -274,40 +287,65 @@
             alert(msg)
         }
     }
-    async function handleCreatePO() {
-        alert(idrecord)
+    const handleCreatePO = () => {
+        po_dpp = subtotal_detail + po_dpp
+        po_dpp_tax = po_dpp + po_ppn_total + po_pph_total
+        po_grandtotal = po_dpp_tax
+        sDataPO = "New"
+        myModal_formpo = new bootstrap.Modal(document.getElementById("modalcreatepo"));
+        myModal_formpo.show();
+    }
+    async function handleGeneratePO() {
+        // po_discount = 0;
+        // po_dpp = 0;
+        // po_ppn = 0.0;
+        // po_ppn_total = 0;
+        // po_pph = 0.0;
+        // po_pph_total = 0;
+        // totalitem_detail
+        // po_grandtotal = 0;
         let flag = true
         let msg = ""
-        if(idrecord == ""){
-            flag = false
-            msg += "The Document is required\n"
+        if(sDataPO == "New"){
+            if(idrecord == ""){
+                flag = false
+                msg += "The Document is required\n"
+            }
+            
         }
-        if(e == ""){
-            flag = false
-            msg += "The Branch is required\n"
-        }
-       
         
         if(flag){
             flag_btnsave = false;
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
             totalitem_field = listdetail_field.length
-            const res = await fetch("/api/asdasd", {
+            const res = await fetch("/api/rfqsave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + token,
                 },
                 body: JSON.stringify({
+                    sdata: sData,
+                    page:"CURR-SAVE",
+                    rfq_search: searchHome,
+                    rfq_page: parseInt(pagingnow),
                     rfq_id: idrecord,
-                    rfq_status: e,
+                    rfq_idbranch: idbranch_field,
+                    rfq_idvendor: idvendor_field,
+                    rfq_idcurr: idcurr_field,
+                    rfq_tipedoc: tipedoc_field,
+                    rfq_listdetail: listdetail_field,
+                    rfq_totalitem: parseFloat(totalitem_field),
+                    rfq_subtotal: parseFloat(subtotal_detail),
                 }),
             });
             const json = await res.json();
             if (json.status == 200) {
                 flag_btnsave = true;
-                status_field = "";
+                if(sData=="New"){
+                    clearField()
+                }
                 msgloader = json.message;
                 RefreshHalaman()
             } else if(json.status == 403){
@@ -436,10 +474,11 @@
         );
         listdetail_field = [];
         subtotal_detail = 0;
+        totalitem_detail = 0;
         for (var i = 0; i < temp.length; i++) {
             let total = parseFloat(temp[i].detail_qty)* parseFloat(temp[i].detail_price);
             subtotal_detail = subtotal_detail + total;
-
+            totalitem_detail = totalitem_detail + 1;
             listdetail_field = [
             ...listdetail_field,
                 {
@@ -553,6 +592,7 @@
     async function call_detail(idpurchase) {
         listdetail_field = [];
         subtotal_detail = 0;
+        totalitem_detail = 0;
         const res = await fetch("/api/rfqdetail", {
             method: "POST",
             headers: {
@@ -570,6 +610,7 @@
                 let no = 0;
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
+                    totalitem_detail = totalitem_detail + 1;
                     let total = parseFloat(record[i]["rfqdetail_qty"]) * parseFloat(record[i]["rfqdetail_price"])
                     subtotal_detail = subtotal_detail + total;
                     listdetail_field = [
@@ -592,6 +633,7 @@
                 }
             }
         }
+        console.log(totalitem_detail)
     }
     function callFunction(event){
         switch(event.detail){
@@ -623,13 +665,30 @@
       };
       dispatch("handlePaging", pattern);
     };
-    function status(e){
-        let result = "DEACTIVE"
-        if(e == "Y"){
-            result = "ACTIVE"
-        }
-        return result
-    }
+    const handleKeyboard_discount = (e) => {
+        po_dpp = subtotal_detail - parseInt(e.target.value)
+        po_ppn = 0
+        po_ppn_total = 0
+        po_ppn_persen = 0.0
+        po_pph = 0
+        po_pph_total = 0
+        po_pph_persen = 0.0
+        po_dpp_tax = po_dpp + po_ppn_total + po_pph_total
+        po_grandtotal = po_dpp_tax
+	}
+    const handleKeyboard_ppn = (e) => {
+        po_ppn_total = po_dpp * e.target.value
+        po_ppn_persen = e.target.value * 100
+        po_dpp_tax = po_dpp + po_ppn_total + po_pph_total
+        po_grandtotal = po_dpp_tax
+	}
+    const handleKeyboard_pph = (e) => {
+        po_pph_total = po_dpp * e.target.value
+        po_pph_persen = e.target.value * 100
+        po_dpp_tax = po_dpp + po_ppn_total + po_pph_total
+        po_grandtotal = po_dpp_tax
+	}
+    handleKeyboard_ppn
 </script>
 <div id="loader" style="margin-left:50%;{css_loader}">
     {msgloader}
@@ -814,7 +873,7 @@
                 {/if}
             </div>
             <div class="{page_right}">
-                <div class="table-responsive border border-primary p-2" style="height: 550px;">
+                <div class="table-responsive border border-primary p-2" style="height: 500px;">
                     <i on:click={() => {
                         pageFullScreen();
                     }} class="bi bi-list" style="cursor: pointer;"></i>
@@ -856,20 +915,22 @@
                                     {rec.detail_departement } / {rec.detail_employee}<br />
                                     {rec.detail_iditem +" - "+ rec.detail_nmitem}
                                 </td>
-                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.detail_qty)}</td>
+                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.detail_qty)}</td>
                                 <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.detail_iduom}</td>
-                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.detail_price)}</td>
-                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{new Intl.NumberFormat().format(rec.detail_total)}</td>
+                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.detail_price)}</td>
+                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.detail_total)}</td>
                             </tr>
                         {/each}
                         </tbody>
                     </table>
                 </div>
-                <div class="float-end">
-                    Subtotal : {new Intl.NumberFormat().format(subtotal_detail)}
-                </div>
-                
-               
+                <table class="table table-sm" style="width: 100%;">
+                    <tr>
+                        <td width="60%" style="text-align: right;font-size: 14px;">Subtotal</td>
+                        <td width="5%" style="text-align: right;font-size: 14px;">:</td>
+                        <td width="*" style="text-align: right;font-size: 14px;color:blue;">{new Intl.NumberFormat().format(subtotal_detail)}</td>
+                    </tr>
+                </table>
             </div>
         </div>
 	</slot:template>
@@ -908,7 +969,7 @@
             <Button on:click={() => {
                     handleCreatePO("PROCESS");
                 }} 
-                button_function="PROCESS"
+                button_function=""
                 button_title="<i class='bi bi-arrow-right'></i>&nbsp;&nbsp;Create PO"
                 button_css="btn-info"/>
         {/if}
@@ -1048,4 +1109,205 @@
 </Modal>
 
 
-
+<Modal
+	modal_id="modalcreatepo"
+	modal_size="modal-dialog-centered modal-xl"
+	modal_title="Create Purchase Order"
+    modal_footer_css="padding:5px;"
+	modal_footer={true}>
+	<slot:template slot="body">
+        <div class="row">
+            <div class="{page_left}">
+                {#if sData!="New"}
+                <div class="mb-2">
+                    <label for="exampleForm" class="form-label">Document</label>
+                    <input type="text" 
+                            bind:value="{idrecord}" 
+                            disabled
+                            class="form-control" placeholder="Document" >
+                </div>
+                {/if}
+                <div class="mb-2">
+                    <label for="exampleForm" class="form-label">Tipe Document</label>
+                    <select
+                        class="form-control required"
+                        bind:value={tipedoc_field}>
+                        <option value="">--Please Select--</option>
+                        <option value="ITEM">ITEM</option>
+                        <option value="SERVICE">SERVICE</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label for="exampleForm" class="form-label">Branch</label>
+                    <select
+                        bind:value="{idbranch_field}" 
+                        class="required form-control ">
+                        <option value="">--Please Select--</option>
+                        {#each listBranch as rec}
+                        <option value="{rec.branch_id}">{rec.branch_name}</option>
+                        {/each}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label for="exampleForm" class="form-label">Vendor</label>
+                    <div class="input-group mb-3">
+                        <input type="text" 
+                            bind:value="{nmvendor_field}" 
+                            disabled
+                            class="form-control" placeholder="Vendor" >
+                        <Button on:click={() => {
+                                ShowVendor();
+                            }} 
+                            button_function="New"
+                            button_title="<i class='bi bi-search'></i>"
+                            button_css="btn-warning"/>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label for="exampleForm" class="form-label">Currency</label>
+                    <select
+                        bind:value="{idcurr_field}" 
+                        class="required form-control ">
+                        <option value="">--Please Select--</option>
+                        {#each listCurr as rec}
+                        <option value="{rec.curr_id}">{rec.curr_id}</option>
+                        {/each}
+                    </select>
+                </div>
+                
+                {#if sData != "New"}
+                <div class="mb-3">
+                    <div class="alert alert-secondary" style="font-size: 11px; padding:10px;" role="alert">
+                        Create : {create_field}<br />
+                        Update : {update_field}
+                    </div>
+                </div>
+                {/if}
+            </div>
+            <div class="{page_right}">
+                <div class="table-responsive border border-primary p-2" style="height: 500px;">
+                    <i on:click={() => {
+                        pageFullScreen();
+                    }} class="bi bi-list" style="cursor: pointer;"></i>
+                    {#if lock_document}
+                    <div class="float-end">
+                        <Button on:click={() => {
+                                ShowFormPRDETAIL();
+                            }} 
+                            button_function=""
+                            button_title="<i class='bi bi-plus-lg'></i>&nbsp;New Purchase Request"
+                            button_css="btn-dark"/>
+                    </div>
+                    {/if}
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                {#if lock_document}
+                                <th NOWRAP width="1%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
+                                {/if}
+                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DESCRIPTION</th>
+                                <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">QTY</th>
+                                <th NOWRAP width="15%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UOM</th>
+                                <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PRICE</th>
+                                <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {#each listdetail_field as rec}
+                            <tr>
+                                {#if lock_document}
+                                <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font}; cursor:pointer;">
+                                    <i on:click={() => {
+                                        handleDeleteListDetail(rec.detail_iditem);
+                                    }} class="bi bi-trash"></i>
+                                </td>
+                                {/if}
+                                <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                    {rec.detail_document }<br />
+                                    {rec.detail_departement } / {rec.detail_employee}<br />
+                                    {rec.detail_iditem +" - "+ rec.detail_nmitem}
+                                </td>
+                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.detail_qty)}</td>
+                                <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.detail_iduom}</td>
+                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.detail_price)}</td>
+                                <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.detail_total)}</td>
+                            </tr>
+                        {/each}
+                        </tbody>
+                    </table>
+                </div>
+                <table class="table table-sm" style="width: 100%;">
+                    <tr>
+                        <td width="60%" style="text-align: right;font-size: 14px;">Subtotal</td>
+                        <td width="1%" style="text-align: right;font-size: 14px;">:</td>
+                        <td width="*" style="text-align: right;font-size: 14px;color:blue;">{new Intl.NumberFormat().format(subtotal_detail)}</td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="text-align: right;font-size: 14px; vertical-align: top;">Discount</td>
+                        <td width="1%" style="text-align: right;font-size: 14px; vertical-align: top;">:</td>
+                        <td width="*" style="text-align: right;font-size: 14px; vertical-align: top;color:blue;">
+                            <input 
+                                bind:value={po_discount}
+                                on:keyup={handleKeyboard_discount}
+                                style="text-align: right;color:red;"
+                                type="text">
+                            <div style="margin-top: 1px;font-size: 12px;color:red;">{new Intl.NumberFormat().format(po_discount)}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="text-align: right;font-size: 14px;vertical-align: top;">DPP</td>
+                        <td width="1%" style="text-align: right;font-size: 14px;vertical-align: top;">:</td>
+                        <td width="*" style="text-align: right;font-size: 14px;vertical-align: top;color:blue;">{new Intl.NumberFormat().format(po_dpp)}</td>
+                    </tr>
+                    {#if tipedoc_field == "SERVICE"}
+                        <tr>
+                            <td width="60%" style="text-align: right;font-size: 14px;vertical-align: top;">
+                                PPH ({po_pph_persen}%) 
+                            </td>
+                            <td width="1%" style="text-align: right;font-size: 14px;vertical-align: top;">:</td>
+                            <td width="*" style="text-align: right;font-size: 14px;vertical-align: top;">
+                                <input 
+                                    bind:value={po_pph}
+                                    on:keyup={handleKeyboard_pph}
+                                    style="text-align: right;color:red;"
+                                    type="text">
+                                <div style="margin-top: 1px;font-size: 12px;color:red;">{new Intl.NumberFormat().format(po_pph_total)}</div>
+                            </td>
+                        </tr>
+                    {/if}
+                    {#if tipedoc_field == "ITEM"}
+                        <tr>
+                            <td width="60%" style="text-align: right;font-size: 14px;vertical-align: top;">
+                                PPN ({po_ppn_persen}%) 
+                            </td>
+                            <td width="1%" style="text-align: right;font-size: 14px;vertical-align: top;">:</td>
+                            <td width="*" style="text-align: right;font-size: 14px;vertical-align: top;">
+                                <input 
+                                    bind:value={po_ppn}
+                                    on:keyup={handleKeyboard_ppn}
+                                    style="text-align: right;color:red;"
+                                    type="text">
+                                <div style="margin-top: 1px;font-size: 12px;color:red;">{new Intl.NumberFormat().format(po_ppn_total)}</div>
+                            </td>
+                        </tr>
+                    {/if}
+                    <tr>
+                        <td width="20%" style="text-align: right;font-size: 14px;">Grandtotal</td>
+                        <td width="1%" style="text-align: right;font-size: 14px;">:</td>
+                        <td width="*" style="text-align: right;font-size: 14px;color:blue;">{new Intl.NumberFormat().format(po_grandtotal)}</td>
+                    </tr>
+                </table>
+                
+               
+            </div>
+        </div>
+	</slot:template>
+	<slot:template slot="footer">
+        <Button on:click={() => {
+                handleGeneratePO();
+            }} 
+            button_function=""
+            button_title="<i class='bi bi-arrow-right'></i>&nbsp;&nbsp;Generate PO"
+            button_css="btn-info"/>
+	</slot:template>
+</Modal>
