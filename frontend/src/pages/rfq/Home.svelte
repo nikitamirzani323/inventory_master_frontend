@@ -1255,7 +1255,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td width="60%" style="text-align: right;font-size: 14px;vertical-align: top;">DPP</td>
+                        <td width="60%" style="text-align: right;font-size: 14px;vertical-align: top;">Total After Discount</td>
                         <td width="1%" style="text-align: right;font-size: 14px;vertical-align: top;">:</td>
                         <td width="*" style="text-align: right;font-size: 14px;vertical-align: top;color:blue;">{new Intl.NumberFormat().format(po_dpp)}</td>
                     </tr>
