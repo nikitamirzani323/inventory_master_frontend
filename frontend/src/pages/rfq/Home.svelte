@@ -296,14 +296,6 @@
         myModal_formpo.show();
     }
     async function handleGeneratePO() {
-        // po_discount = 0;
-        // po_dpp = 0;
-        // po_ppn = 0.0;
-        // po_ppn_total = 0;
-        // po_pph = 0.0;
-        // po_pph_total = 0;
-        // totalitem_detail
-        // po_grandtotal = 0;
         let flag = true
         let msg = ""
         if(sDataPO == "New"){
@@ -319,31 +311,33 @@
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
             totalitem_field = listdetail_field.length
-            const res = await fetch("/api/rfqsave", {
+            const res = await fetch("/api/posave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + token,
                 },
                 body: JSON.stringify({
-                    sdata: sData,
+                    sdata: sDataPO,
                     page:"CURR-SAVE",
-                    rfq_search: searchHome,
-                    rfq_page: parseInt(pagingnow),
-                    rfq_id: idrecord,
-                    rfq_idbranch: idbranch_field,
-                    rfq_idvendor: idvendor_field,
-                    rfq_idcurr: idcurr_field,
-                    rfq_tipedoc: tipedoc_field,
-                    rfq_listdetail: listdetail_field,
-                    rfq_totalitem: parseFloat(totalitem_field),
-                    rfq_subtotal: parseFloat(subtotal_detail),
+                    po_search: searchHome,
+                    po_page: parseInt(pagingnow),
+                    po_id: "",
+                    po_idrfq: idrecord,
+                    po_discount: parseFloat(po_discount),
+                    po_ppn: parseFloat(po_ppn),
+                    po_pph: parseFloat(po_pph),
+                    po_ppn_total: parseFloat(po_ppn_total),
+                    po_pph_total: parseFloat(po_pph_total),
+                    po_totalitem: parseFloat(totalitem_detail),
+                    po_subtotal: parseFloat(subtotal_detail),
+                    po_grandtotal: parseFloat(po_grandtotal),
                 }),
             });
             const json = await res.json();
             if (json.status == 200) {
                 flag_btnsave = true;
-                if(sData=="New"){
+                if(sDataPO=="New"){
                     clearField()
                 }
                 msgloader = json.message;
@@ -741,6 +735,7 @@
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                                 <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DOCUMENT</th>
+                                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DOCUMENT PO</th>
                                 <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DATE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TIPE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">BRANCH</th>
@@ -769,6 +764,7 @@
                                         </span>
                                     </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_id}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_idpo}</td>
                                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_date}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_tipedoc}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_nmbranch}</td>
