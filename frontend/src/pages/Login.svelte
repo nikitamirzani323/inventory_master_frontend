@@ -32,13 +32,17 @@
             }),
         });
         const json = await res.json();
+        console.log(json)
         if (json.status == 400) {
             alert(json.message);
             $form.username = ""
             $form.password = ""
-        } else {
+        } else if(json.status == 200) {
             localStorage.setItem("token", json.token);
             window.location.href = "/";
+        }else{
+            alert("Server trouble, please contact admin");
+            
         }
     }
     async function initTimezone() {
